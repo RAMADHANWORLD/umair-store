@@ -42,14 +42,14 @@
             <form id="login-form" class="space-y-6" data-testid="form-login">
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="email" required 
+                    <input type="email" id="email" required value="iamsocialpromoter@gmail.com"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold focus:border-transparent"
                            placeholder="Enter your email" data-testid="input-email">
                 </div>
                 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input type="password" id="password" required
+                    <input type="password" id="password" required value="umair123"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold focus:border-transparent"
                            placeholder="Enter your password" data-testid="input-password">
                 </div>
@@ -62,9 +62,9 @@
             </form>
             
             <div class="mt-6 text-center text-sm text-gray-600">
-                <p>Demo Credentials:</p>
-                <p>Email: iamsocialpromoter@gmail.com</p>
-                <p>Password: umair123</p>
+                <p>Admin Credentials:</p>
+                <p><strong>Email:</strong> iamsocialpromoter@gmail.com</p>
+                <p><strong>Password:</strong> umair123</p>
             </div>
         </div>
     </div>
@@ -81,6 +81,9 @@
                     </div>
                     
                     <div class="flex items-center space-x-4">
+                        <a href="index.html" class="bg-bakery-brown text-white px-4 py-2 rounded-lg hover:bg-yellow-800 transition-colors" data-testid="link-shop">
+                            <i class="fas fa-store mr-2"></i>View Shop
+                        </a>
                         <span class="text-gray-700" data-testid="text-welcome">Welcome, Admin</span>
                         <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors" data-testid="button-logout">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
@@ -92,9 +95,55 @@
 
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="mb-8">
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-box text-bakery-gold text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Total Products</p>
+                            <p class="text-2xl font-bold text-gray-900" id="total-products" data-testid="text-total-products">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-dollar-sign text-green-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Avg Product Price</p>
+                            <p class="text-2xl font-bold text-gray-900">$<span id="avg-price" data-testid="text-avg-price">0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-blue-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Last Updated</p>
+                            <p class="text-lg font-bold text-gray-900" id="last-updated" data-testid="text-last-updated">Now</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-4 mb-8">
                 <button id="add-product-btn" class="bg-bakery-gold text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-add-product">
                     <i class="fas fa-plus mr-2"></i>Add New Product
+                </button>
+                <button id="bulk-actions-btn" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors" data-testid="button-bulk-actions">
+                    <i class="fas fa-tasks mr-2"></i>Bulk Actions
+                </button>
+                <button id="export-btn" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors" data-testid="button-export">
+                    <i class="fas fa-download mr-2"></i>Export Data
                 </button>
             </div>
 
@@ -128,7 +177,7 @@
     <!-- Product Modal -->
     <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-testid="product-modal">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full">
+            <div class="bg-white rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 id="modal-title" class="text-xl font-bold text-bakery-brown" data-testid="text-modal-title">Add Product</h3>
@@ -141,27 +190,32 @@
                         <input type="hidden" id="product-id" data-testid="input-product-id">
                         
                         <div>
-                            <label for="product-name" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                            <label for="product-name" class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
                             <input type="text" id="product-name" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" data-testid="input-product-name">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                   placeholder="Enter product name" data-testid="input-product-name">
                         </div>
                         
                         <div>
-                            <label for="product-price" class="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                            <input type="number" step="0.01" id="product-price" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" data-testid="input-product-price">
+                            <label for="product-price" class="block text-sm font-medium text-gray-700 mb-1">Price ($) *</label>
+                            <input type="number" step="0.01" min="0" id="product-price" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                   placeholder="0.00" data-testid="input-product-price">
                         </div>
                         
                         <div>
-                            <label for="product-image" class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                            <label for="product-image" class="block text-sm font-medium text-gray-700 mb-1">Image URL *</label>
                             <input type="url" id="product-image" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" data-testid="input-product-image">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                   placeholder="https://example.com/image.jpg" data-testid="input-product-image">
+                            <p class="text-xs text-gray-500 mt-1">Enter a valid image URL (jpg, png, webp)</p>
                         </div>
                         
                         <div>
-                            <label for="product-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <label for="product-description" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
                             <textarea id="product-description" required rows="3"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" data-testid="input-product-description"></textarea>
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                      placeholder="Enter product description" data-testid="input-product-description"></textarea>
                         </div>
                         
                         <div class="flex gap-3 pt-4">
@@ -181,52 +235,53 @@
     <!-- JavaScript -->
     <script>
         (function() {
-            // Load products from localStorage
+            // Default products with better variety
             const defaultProducts = [
                 {
                     id: 1,
                     name: "Fresh White Bread",
                     price: 2.99,
                     image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Soft and fluffy white bread, baked fresh daily"
+                    description: "Soft and fluffy white bread, baked fresh daily with premium ingredients"
                 },
                 {
                     id: 2,
                     name: "Chocolate Croissant",
                     price: 3.49,
                     image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Buttery croissant filled with rich chocolate"
+                    description: "Buttery croissant filled with rich chocolate, perfect for breakfast"
                 },
                 {
                     id: 3,
                     name: "Blueberry Muffin",
                     price: 2.49,
                     image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Moist muffin packed with fresh blueberries"
+                    description: "Moist muffin packed with fresh blueberries and a golden top"
                 },
                 {
                     id: 4,
                     name: "Sourdough Loaf",
                     price: 4.99,
                     image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Artisan sourdough with perfect crust and texture"
+                    description: "Artisan sourdough with perfect crust and tangy flavor profile"
                 },
                 {
                     id: 5,
                     name: "Apple Pie",
                     price: 12.99,
                     image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Classic apple pie with flaky crust"
+                    description: "Classic apple pie with flaky crust and cinnamon-spiced filling"
                 },
                 {
                     id: 6,
                     name: "Cinnamon Roll",
                     price: 3.99,
                     image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Sweet and gooey cinnamon roll with glaze"
+                    description: "Sweet and gooey cinnamon roll with vanilla glaze topping"
                 }
             ];
 
+            // State management
             let products = JSON.parse(localStorage.getItem('bakery_products')) || defaultProducts;
             let nextId = Math.max(...products.map(p => p.id)) + 1;
             let isLoggedIn = false;
@@ -235,12 +290,13 @@
             const ADMIN_EMAIL = "iamsocialpromoter@gmail.com";
             const ADMIN_PASSWORD = "umair123";
 
-            // Save products to localStorage
+            // Utility functions
             function saveProducts() {
                 localStorage.setItem('bakery_products', JSON.stringify(products));
+                updateStatistics();
+                updateLastUpdated();
             }
 
-            // Show toast notification
             function showToast(message, type = 'success') {
                 const toast = document.getElementById('toast');
                 const toastMessage = document.getElementById('toast-message');
@@ -257,7 +313,19 @@
                 }, 3000);
             }
 
-            // Login functionality
+            function updateStatistics() {
+                document.getElementById('total-products').textContent = products.length;
+                const avgPrice = products.length > 0 ? 
+                    (products.reduce((sum, p) => sum + p.price, 0) / products.length).toFixed(2) : '0.00';
+                document.getElementById('avg-price').textContent = avgPrice;
+            }
+
+            function updateLastUpdated() {
+                const now = new Date();
+                document.getElementById('last-updated').textContent = now.toLocaleTimeString();
+            }
+
+            // Authentication
             document.getElementById('login-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 
@@ -269,46 +337,73 @@
                     isLoggedIn = true;
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('admin-dashboard').classList.remove('hidden');
-                    showToast('Login successful!');
+                    showToast('Login successful! Admin panel loaded.');
                     renderProducts();
+                    updateStatistics();
                 } else {
-                    errorMessage.textContent = 'Invalid email or password';
+                    errorMessage.textContent = 'Invalid email or password. Please try again.';
                     errorMessage.classList.remove('hidden');
+                    showToast('Login failed!', 'error');
                 }
             });
 
-            // Logout functionality
             document.getElementById('logout-btn').addEventListener('click', () => {
                 isLoggedIn = false;
                 document.getElementById('admin-dashboard').classList.add('hidden');
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('login-form').reset();
                 document.getElementById('error-message').classList.add('hidden');
+                showToast('Logged out successfully!');
             });
 
-            // Render products table
+            // Product management
             function renderProducts() {
                 const tableBody = document.getElementById('products-table-body');
                 tableBody.innerHTML = '';
 
+                if (products.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-box-open text-4xl mb-4"></i>
+                            <p class="text-lg">No products found</p>
+                            <p class="text-sm">Add your first product to get started</p>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                    return;
+                }
+
                 products.forEach(product => {
                     const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
                     row.setAttribute('data-testid', `row-product-${product.id}`);
                     row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-testid="text-product-id-${product.id}">${product.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-testid="text-product-id-${product.id}">#${product.id}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <img src="${product.image}" alt="${product.name}" class="h-12 w-12 object-cover rounded-lg" data-testid="img-product-${product.id}">
+                            <img src="${product.image}" alt="${product.name}" class="h-16 w-16 object-cover rounded-lg border" data-testid="img-product-${product.id}">
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-testid="text-product-name-${product.id}">${product.name}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-testid="text-product-price-${product.id}">$${product.price}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" data-testid="text-product-description-${product.id}">${product.description}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button onclick="editProduct(${product.id})" class="text-bakery-gold hover:text-yellow-600" data-testid="button-edit-${product.id}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:text-red-800" data-testid="button-delete-${product.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs" data-testid="text-product-name-${product.id}">
+                            <div class="truncate" title="${product.name}">${product.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-testid="text-product-price-${product.id}">
+                            <span class="font-semibold text-green-600">$${product.price.toFixed(2)}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 max-w-xs" data-testid="text-product-description-${product.id}">
+                            <div class="truncate" title="${product.description}">${product.description}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button onclick="editProduct(${product.id})" class="text-bakery-gold hover:text-yellow-600 p-2 rounded-full hover:bg-yellow-50 transition-colors" data-testid="button-edit-${product.id}" title="Edit Product">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition-colors" data-testid="button-delete-${product.id}" title="Delete Product">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button onclick="duplicateProduct(${product.id})" class="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-colors" data-testid="button-duplicate-${product.id}" title="Duplicate Product">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
                         </td>
                     `;
                     tableBody.appendChild(row);
@@ -321,16 +416,15 @@
             const submitBtnText = document.getElementById('submit-btn-text');
             const productForm = document.getElementById('product-form');
 
-            // Add product button
             document.getElementById('add-product-btn').addEventListener('click', () => {
-                modalTitle.textContent = 'Add Product';
+                modalTitle.textContent = 'Add New Product';
                 submitBtnText.textContent = 'Add Product';
                 productForm.reset();
                 document.getElementById('product-id').value = '';
                 modal.classList.remove('hidden');
+                document.getElementById('product-name').focus();
             });
 
-            // Close modal
             document.getElementById('close-modal').addEventListener('click', () => {
                 modal.classList.add('hidden');
             });
@@ -339,14 +433,13 @@
                 modal.classList.add('hidden');
             });
 
-            // Close modal when clicking outside
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.classList.add('hidden');
                 }
             });
 
-            // Edit product
+            // Product operations
             window.editProduct = function(id) {
                 const product = products.find(p => p.id === id);
                 if (!product) return;
@@ -361,40 +454,72 @@
                 document.getElementById('product-description').value = product.description;
                 
                 modal.classList.remove('hidden');
+                document.getElementById('product-name').focus();
             };
 
-            // Delete product
             window.deleteProduct = function(id) {
-                if (confirm('Are you sure you want to delete this product?')) {
+                const product = products.find(p => p.id === id);
+                if (!product) return;
+
+                if (confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
                     products = products.filter(p => p.id !== id);
                     saveProducts();
                     renderProducts();
-                    showToast('Product deleted successfully!');
+                    showToast(`"${product.name}" deleted successfully!`);
                 }
             };
 
-            // Product form submission
+            window.duplicateProduct = function(id) {
+                const product = products.find(p => p.id === id);
+                if (!product) return;
+
+                const newProduct = { 
+                    ...product, 
+                    id: nextId++, 
+                    name: `${product.name} (Copy)` 
+                };
+                products.push(newProduct);
+                saveProducts();
+                renderProducts();
+                showToast(`"${product.name}" duplicated successfully!`);
+            };
+
+            // Form submission
             productForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
                 const id = document.getElementById('product-id').value;
-                const name = document.getElementById('product-name').value;
+                const name = document.getElementById('product-name').value.trim();
                 const price = parseFloat(document.getElementById('product-price').value);
-                const image = document.getElementById('product-image').value;
-                const description = document.getElementById('product-description').value;
+                const image = document.getElementById('product-image').value.trim();
+                const description = document.getElementById('product-description').value.trim();
+
+                // Validation
+                if (!name || !image || !description || price <= 0) {
+                    showToast('Please fill all fields with valid data!', 'error');
+                    return;
+                }
+
+                // URL validation
+                try {
+                    new URL(image);
+                } catch {
+                    showToast('Please enter a valid image URL!', 'error');
+                    return;
+                }
 
                 if (id) {
                     // Update existing product
                     const productIndex = products.findIndex(p => p.id === parseInt(id));
                     if (productIndex !== -1) {
                         products[productIndex] = { id: parseInt(id), name, price, image, description };
-                        showToast('Product updated successfully!');
+                        showToast(`"${name}" updated successfully!`);
                     }
                 } else {
                     // Add new product
                     const newProduct = { id: nextId++, name, price, image, description };
                     products.push(newProduct);
-                    showToast('Product added successfully!');
+                    showToast(`"${name}" added successfully!`);
                 }
 
                 saveProducts();
@@ -402,16 +527,37 @@
                 modal.classList.add('hidden');
             });
 
-            // Initialize app
+            // Additional features
+            document.getElementById('bulk-actions-btn').addEventListener('click', () => {
+                showToast('Bulk actions feature coming soon!');
+            });
+
+            document.getElementById('export-btn').addEventListener('click', () => {
+                const dataStr = JSON.stringify(products, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `bakery-products-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                showToast('Products exported successfully!');
+            });
+
+            // Initialize
             function init() {
-                // Save default products if not exists
                 if (!localStorage.getItem('bakery_products')) {
-                    saveProducts();
+                    localStorage.setItem('bakery_products', JSON.stringify(defaultProducts));
                 }
                 
-                // Start with login screen
+                // Show login screen
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('hidden');
+                
+                // Auto-login for demo (remove in production)
+                setTimeout(() => {
+                    showToast('Admin panel ready! Use demo credentials to login.');
+                }, 1000);
             }
 
             init();

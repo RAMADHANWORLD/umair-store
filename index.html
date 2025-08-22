@@ -30,7 +30,7 @@
 <body class="bg-bakery-cream">
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out" data-testid="toast-notification">
-        <span id="toast-message" data-testid="toast-message">Link copied!</span>
+        <span id="toast-message" data-testid="toast-message">Success!</span>
     </div>
 
     <!-- Header -->
@@ -43,6 +43,9 @@
                 </div>
                 
                 <div class="flex items-center space-x-4">
+                    <a href="admin.html" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors" data-testid="link-admin">
+                        <i class="fas fa-user-shield mr-2"></i>Admin
+                    </a>
                     <button id="cart-btn" class="relative bg-bakery-gold text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-cart">
                         <i class="fas fa-shopping-cart mr-2"></i>
                         Cart (<span id="cart-count" data-testid="text-cart-count">0</span>)
@@ -92,10 +95,63 @@
                         <div class="flex justify-between items-center mb-4">
                             <span class="text-lg font-bold">Total: $<span id="cart-total" data-testid="text-cart-total">0.00</span></span>
                         </div>
-                        <button class="w-full bg-bakery-gold text-white py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-checkout">
-                            Checkout
+                        <button id="checkout-btn" class="w-full bg-bakery-gold text-white py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-checkout">
+                            <i class="fab fa-whatsapp mr-2"></i>Checkout via WhatsApp
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-testid="checkout-modal">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-bakery-brown">Checkout Details</h3>
+                        <button id="close-checkout" class="text-gray-500 hover:text-gray-700" data-testid="button-close-checkout">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="checkout-form" class="space-y-4" data-testid="form-checkout">
+                        <div>
+                            <label for="customer-name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                            <input type="text" id="customer-name" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                   placeholder="Enter your name" data-testid="input-customer-name">
+                        </div>
+                        
+                        <div>
+                            <label for="customer-phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="customer-phone" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                   placeholder="Enter your phone" data-testid="input-customer-phone">
+                        </div>
+                        
+                        <div>
+                            <label for="customer-address" class="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
+                            <textarea id="customer-address" required rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                      placeholder="Enter your address" data-testid="input-customer-address"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="customer-note" class="block text-sm font-medium text-gray-700 mb-1">Special Instructions (Optional)</label>
+                            <textarea id="customer-note" rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
+                                      placeholder="Any special requests..." data-testid="input-customer-note"></textarea>
+                        </div>
+                        
+                        <div class="border-t pt-4">
+                            <div class="text-lg font-bold mb-4">Order Total: $<span id="checkout-total" data-testid="text-checkout-total">0.00</span></div>
+                            <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors" data-testid="button-send-whatsapp">
+                                <i class="fab fa-whatsapp mr-2"></i>Send Order via WhatsApp
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -104,7 +160,7 @@
     <!-- JavaScript -->
     <script>
         (function() {
-            // Load products from localStorage or use default
+            // Default products
             const defaultProducts = [
                 {
                     id: 1,
@@ -150,34 +206,34 @@
                 }
             ];
 
+            // Initialize products and cart
             let products = JSON.parse(localStorage.getItem('bakery_products')) || defaultProducts;
             let cart = JSON.parse(localStorage.getItem('bakery_cart')) || [];
 
-            // Sync products with localStorage when updated by admin
+            // Auto-sync with admin updates
             function syncProducts() {
                 const stored = JSON.parse(localStorage.getItem('bakery_products'));
-                if (stored) {
+                if (stored && JSON.stringify(stored) !== JSON.stringify(products)) {
                     products = stored;
                     renderProducts();
                 }
             }
 
-            // Listen for storage changes (when admin updates products)
+            // Listen for storage changes
             window.addEventListener('storage', (e) => {
                 if (e.key === 'bakery_products') {
                     syncProducts();
                 }
             });
 
-            // Check for updates every 2 seconds
+            // Auto-sync every 2 seconds
             setInterval(syncProducts, 2000);
 
-            // Generate short link (placeholder for Firebase Dynamic Links)
+            // Share functionality
             function getShortLink(productId) {
                 return `https://umairbakers.page.link/${productId}`;
             }
 
-            // Share product function
             async function shareProduct(product) {
                 const url = getShortLink(product.id);
                 const text = `Check out ${product.name} at Umair Bakers & General Store!`;
@@ -190,27 +246,28 @@
                             url: url 
                         });
                     } catch (error) {
-                        console.log('Share cancelled or failed');
+                        console.log('Share cancelled');
                     }
                 } else {
-                    // Fallback: copy to clipboard
                     try {
                         await navigator.clipboard.writeText(url);
-                        showToast("Link copied!");
+                        showToast("Link copied to clipboard!");
                     } catch (error) {
-                        // Fallback for older browsers
-                        const textArea = document.createElement('textarea');
-                        textArea.value = url;
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textArea);
+                        fallbackCopyToClipboard(url);
                         showToast("Link copied!");
                     }
                 }
             }
 
-            // WhatsApp share function
+            function fallbackCopyToClipboard(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+
             function shareToWhatsApp(product) {
                 const url = getShortLink(product.id);
                 const text = `Check this product: ${url}`;
@@ -218,10 +275,12 @@
                 window.open(whatsappUrl, '_blank');
             }
 
-            // Show toast notification
-            function showToast(message) {
+            // Toast notifications
+            function showToast(message, type = 'success') {
                 const toast = document.getElementById('toast');
                 const toastMessage = document.getElementById('toast-message');
+                
+                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
                 toastMessage.textContent = message;
                 
                 toast.classList.remove('translate-x-full');
@@ -233,7 +292,7 @@
                 }, 3000);
             }
 
-            // Add to cart function
+            // Cart management
             function addToCart(product) {
                 const existingItem = cart.find(item => item.id === product.id);
                 
@@ -248,7 +307,6 @@
                 showToast(`${product.name} added to cart!`);
             }
 
-            // Remove from cart function
             function removeFromCart(productId) {
                 cart = cart.filter(item => item.id !== productId);
                 localStorage.setItem('bakery_cart', JSON.stringify(cart));
@@ -256,7 +314,6 @@
                 renderCartItems();
             }
 
-            // Update cart count
             function updateCartCount() {
                 const cartCount = document.getElementById('cart-count');
                 const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -279,7 +336,7 @@
                             <h4 class="text-lg font-semibold text-bakery-brown mb-2" data-testid="text-product-name-${product.id}">${product.name}</h4>
                             <p class="text-gray-600 text-sm mb-3" data-testid="text-product-description-${product.id}">${product.description}</p>
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xl font-bold text-bakery-gold" data-testid="text-product-price-${product.id}">$${product.price}</span>
+                                <span class="text-xl font-bold text-bakery-gold" data-testid="text-product-price-${product.id}">$${product.price.toFixed(2)}</span>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="addToCartHandler(${product.id})" class="flex-1 bg-bakery-brown text-white py-2 rounded-lg hover:bg-yellow-800 transition-colors" data-testid="button-add-cart-${product.id}">
@@ -306,7 +363,7 @@
                 });
             }
 
-            // Toggle share menu
+            // Share menu toggle
             function toggleShareMenu(productId) {
                 const menu = document.getElementById(`share-menu-${productId}`);
                 const isHidden = menu.classList.contains('hidden');
@@ -368,7 +425,7 @@
                     cartItem.innerHTML = `
                         <div>
                             <h5 class="font-semibold" data-testid="text-cart-item-name-${item.id}">${item.name}</h5>
-                            <p class="text-sm text-gray-600" data-testid="text-cart-item-details-${item.id}">$${item.price} × ${item.quantity}</p>
+                            <p class="text-sm text-gray-600" data-testid="text-cart-item-details-${item.id}">$${item.price.toFixed(2)} × ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}</p>
                         </div>
                         <button onclick="removeFromCartHandler(${item.id})" class="text-red-500 hover:text-red-700" data-testid="button-remove-cart-${item.id}">
                             <i class="fas fa-trash"></i>
@@ -384,6 +441,57 @@
                 removeFromCart(productId);
             };
 
+            // WhatsApp checkout
+            function processCheckout() {
+                if (cart.length === 0) {
+                    showToast('Your cart is empty!', 'error');
+                    return;
+                }
+
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                document.getElementById('checkout-total').textContent = total.toFixed(2);
+                document.getElementById('cart-modal').classList.add('hidden');
+                document.getElementById('checkout-modal').classList.remove('hidden');
+            }
+
+            function sendWhatsAppOrder() {
+                const name = document.getElementById('customer-name').value;
+                const phone = document.getElementById('customer-phone').value;
+                const address = document.getElementById('customer-address').value;
+                const note = document.getElementById('customer-note').value;
+
+                if (!name || !phone || !address) {
+                    showToast('Please fill in all required fields!', 'error');
+                    return;
+                }
+
+                let orderText = `🛒 *New Order from ${name}*\n\n`;
+                orderText += `📱 Phone: ${phone}\n`;
+                orderText += `📍 Address: ${address}\n`;
+                if (note) orderText += `📝 Note: ${note}\n`;
+                orderText += `\n*Order Details:*\n`;
+
+                let total = 0;
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    orderText += `• ${item.name} x${item.quantity} = $${itemTotal.toFixed(2)}\n`;
+                });
+
+                orderText += `\n💰 *Total: $${total.toFixed(2)}*`;
+
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(orderText)}`;
+                window.open(whatsappUrl, '_blank');
+
+                // Clear cart and close modal
+                cart = [];
+                localStorage.setItem('bakery_cart', JSON.stringify(cart));
+                updateCartCount();
+                document.getElementById('checkout-modal').classList.add('hidden');
+                document.getElementById('checkout-form').reset();
+                showToast('Order sent via WhatsApp!');
+            }
+
             // Modal controls
             document.getElementById('cart-btn').addEventListener('click', () => {
                 document.getElementById('cart-modal').classList.remove('hidden');
@@ -394,6 +502,30 @@
                 document.getElementById('cart-modal').classList.add('hidden');
             });
 
+            document.getElementById('checkout-btn').addEventListener('click', processCheckout);
+
+            document.getElementById('close-checkout').addEventListener('click', () => {
+                document.getElementById('checkout-modal').classList.add('hidden');
+            });
+
+            document.getElementById('checkout-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                sendWhatsAppOrder();
+            });
+
+            // Close modals when clicking outside
+            document.getElementById('cart-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('cart-modal')) {
+                    document.getElementById('cart-modal').classList.add('hidden');
+                }
+            });
+
+            document.getElementById('checkout-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('checkout-modal')) {
+                    document.getElementById('checkout-modal').classList.add('hidden');
+                }
+            });
+
             // Close share menus when clicking outside
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('[id^="share-menu-"]') && !e.target.closest('button[onclick^="toggleShareMenu"]')) {
@@ -401,21 +533,17 @@
                 }
             });
 
-            // Close cart modal when clicking outside
-            document.getElementById('cart-modal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('cart-modal')) {
-                    document.getElementById('cart-modal').classList.add('hidden');
+            // Initialize app
+            function init() {
+                if (!localStorage.getItem('bakery_products')) {
+                    localStorage.setItem('bakery_products', JSON.stringify(defaultProducts));
                 }
-            });
-
-            // Initialize
-            renderProducts();
-            updateCartCount();
-
-            // Save default products to localStorage if not exists
-            if (!localStorage.getItem('bakery_products')) {
-                localStorage.setItem('bakery_products', JSON.stringify(defaultProducts));
+                renderProducts();
+                updateCartCount();
+                showToast('Shop loaded successfully!');
             }
+
+            init();
         })();
     </script>
 </body>
