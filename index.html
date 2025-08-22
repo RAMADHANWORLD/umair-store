@@ -10,6 +10,7 @@
     <meta property="og:type" content="website">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -31,6 +32,14 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out" data-testid="toast-notification">
         <span id="toast-message" data-testid="toast-message">Success!</span>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" data-testid="loading">
+        <div class="bg-white rounded-lg p-8 text-center">
+            <i class="fas fa-spinner fa-spin text-bakery-gold text-3xl mb-4"></i>
+            <p class="text-lg font-semibold text-bakery-brown">Loading products...</p>
+        </div>
     </div>
 
     <!-- Header -->
@@ -160,74 +169,148 @@
     <!-- JavaScript -->
     <script>
         (function() {
-            // Default products
-            const defaultProducts = [
-                {
-                    id: 1,
-                    name: "Fresh White Bread",
-                    price: 2.99,
-                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Soft and fluffy white bread, baked fresh daily"
-                },
-                {
-                    id: 2,
-                    name: "Chocolate Croissant",
-                    price: 3.49,
-                    image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Buttery croissant filled with rich chocolate"
-                },
-                {
-                    id: 3,
-                    name: "Blueberry Muffin",
-                    price: 2.49,
-                    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Moist muffin packed with fresh blueberries"
-                },
-                {
-                    id: 4,
-                    name: "Sourdough Loaf",
-                    price: 4.99,
-                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Artisan sourdough with perfect crust and texture"
-                },
-                {
-                    id: 5,
-                    name: "Apple Pie",
-                    price: 12.99,
-                    image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Classic apple pie with flaky crust"
-                },
-                {
-                    id: 6,
-                    name: "Cinnamon Roll",
-                    price: 3.99,
-                    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Sweet and gooey cinnamon roll with glaze"
-                }
-            ];
+            // Supabase configuration
+            const supabaseUrl = 'https://gsdmikfgxrbgwlkoudrq.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZG1pa2ZneHJiZ3dsa291ZHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NzczOTUsImV4cCI6MjA3MTQ1MzM5NX0.vf2jfXD2MbkO4hzpLPVUHpf-mETWcMT0kNnWtRH3e0c';
+            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-            // Initialize products and cart
-            let products = JSON.parse(localStorage.getItem('bakery_products')) || defaultProducts;
+            // State management
+            let products = [];
             let cart = JSON.parse(localStorage.getItem('bakery_cart')) || [];
 
-            // Auto-sync with admin updates
-            function syncProducts() {
-                const stored = JSON.parse(localStorage.getItem('bakery_products'));
-                if (stored && JSON.stringify(stored) !== JSON.stringify(products)) {
-                    products = stored;
+            // Database operations
+            async function fetchProducts() {
+                try {
+                    showLoading(true);
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('*')
+                        .order('id', { ascending: true });
+
+                    if (error) {
+                        console.error('Error fetching products:', error);
+                        await initializeDefaultProducts();
+                        return;
+                    }
+
+                    products = data || [];
+                    if (products.length === 0) {
+                        await initializeDefaultProducts();
+                    }
+                } catch (error) {
+                    console.error('Database connection error:', error);
+                    showToast('Using offline mode', 'error');
+                } finally {
+                    showLoading(false);
                     renderProducts();
                 }
             }
 
-            // Listen for storage changes
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'bakery_products') {
-                    syncProducts();
-                }
-            });
+            async function initializeDefaultProducts() {
+                const defaultProducts = [
+                    {
+                        name: "Fresh White Bread",
+                        price: 2.99,
+                        image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                        description: "Soft and fluffy white bread, baked fresh daily"
+                    },
+                    {
+                        name: "Chocolate Croissant",
+                        price: 3.49,
+                        image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                        description: "Buttery croissant filled with rich chocolate"
+                    },
+                    {
+                        name: "Blueberry Muffin",
+                        price: 2.49,
+                        image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                        description: "Moist muffin packed with fresh blueberries"
+                    },
+                    {
+                        name: "Sourdough Loaf",
+                        price: 4.99,
+                        image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                        description: "Artisan sourdough with perfect crust and texture"
+                    },
+                    {
+                        name: "Apple Pie",
+                        price: 12.99,
+                        image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                        description: "Classic apple pie with flaky crust"
+                    },
+                    {
+                        name: "Cinnamon Roll",
+                        price: 3.99,
+                        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                        description: "Sweet and gooey cinnamon roll with glaze"
+                    }
+                ];
 
-            // Auto-sync every 2 seconds
-            setInterval(syncProducts, 2000);
+                try {
+                    // Check if products table exists and has data
+                    const { data: existingProducts } = await supabase
+                        .from('products')
+                        .select('id')
+                        .limit(1);
+
+                    if (!existingProducts || existingProducts.length === 0) {
+                        // Insert default products
+                        const { data, error } = await supabase
+                            .from('products')
+                            .insert(defaultProducts)
+                            .select();
+
+                        if (!error && data) {
+                            products = data;
+                            showToast('Products initialized successfully!');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error initializing products:', error);
+                }
+            }
+
+            // Real-time subscription for product updates
+            function setupRealtimeSubscription() {
+                const subscription = supabase
+                    .channel('products')
+                    .on('postgres_changes', 
+                        { event: '*', schema: 'public', table: 'products' },
+                        (payload) => {
+                            console.log('Real-time update:', payload);
+                            fetchProducts();
+                        }
+                    )
+                    .subscribe();
+
+                return subscription;
+            }
+
+            // UI functions
+            function showLoading(show) {
+                const loading = document.getElementById('loading');
+                if (show) {
+                    loading.classList.remove('hidden');
+                } else {
+                    loading.classList.add('hidden');
+                }
+            }
+
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
+                
+                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+                toastMessage.textContent = message;
+                
+                toast.classList.remove('translate-x-full');
+                toast.classList.add('translate-x-0');
+                
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-0');
+                    toast.classList.add('translate-x-full');
+                }, 3000);
+            }
 
             // Share functionality
             function getShortLink(productId) {
@@ -275,23 +358,6 @@
                 window.open(whatsappUrl, '_blank');
             }
 
-            // Toast notifications
-            function showToast(message, type = 'success') {
-                const toast = document.getElementById('toast');
-                const toastMessage = document.getElementById('toast-message');
-                
-                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
-                toastMessage.textContent = message;
-                
-                toast.classList.remove('translate-x-full');
-                toast.classList.add('translate-x-0');
-                
-                setTimeout(() => {
-                    toast.classList.remove('translate-x-0');
-                    toast.classList.add('translate-x-full');
-                }, 3000);
-            }
-
             // Cart management
             function addToCart(product) {
                 const existingItem = cart.find(item => item.id === product.id);
@@ -325,6 +391,17 @@
                 const productsGrid = document.getElementById('products-grid');
                 productsGrid.innerHTML = '';
 
+                if (products.length === 0) {
+                    productsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">No products available</h3>
+                            <p class="text-gray-500">Products will appear here once they are added by the admin.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
                 products.forEach(product => {
                     const productCard = document.createElement('div');
                     productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow';
@@ -336,7 +413,7 @@
                             <h4 class="text-lg font-semibold text-bakery-brown mb-2" data-testid="text-product-name-${product.id}">${product.name}</h4>
                             <p class="text-gray-600 text-sm mb-3" data-testid="text-product-description-${product.id}">${product.description}</p>
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xl font-bold text-bakery-gold" data-testid="text-product-price-${product.id}">$${product.price.toFixed(2)}</span>
+                                <span class="text-xl font-bold text-bakery-gold" data-testid="text-product-price-${product.id}">$${Number(product.price).toFixed(2)}</span>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="addToCartHandler(${product.id})" class="flex-1 bg-bakery-brown text-white py-2 rounded-lg hover:bg-yellow-800 transition-colors" data-testid="button-add-cart-${product.id}">
@@ -425,7 +502,7 @@
                     cartItem.innerHTML = `
                         <div>
                             <h5 class="font-semibold" data-testid="text-cart-item-name-${item.id}">${item.name}</h5>
-                            <p class="text-sm text-gray-600" data-testid="text-cart-item-details-${item.id}">$${item.price.toFixed(2)} × ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}</p>
+                            <p class="text-sm text-gray-600" data-testid="text-cart-item-details-${item.id}">$${Number(item.price).toFixed(2)} × ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}</p>
                         </div>
                         <button onclick="removeFromCartHandler(${item.id})" class="text-red-500 hover:text-red-700" data-testid="button-remove-cart-${item.id}">
                             <i class="fas fa-trash"></i>
@@ -534,13 +611,11 @@
             });
 
             // Initialize app
-            function init() {
-                if (!localStorage.getItem('bakery_products')) {
-                    localStorage.setItem('bakery_products', JSON.stringify(defaultProducts));
-                }
-                renderProducts();
+            async function init() {
                 updateCartCount();
-                showToast('Shop loaded successfully!');
+                await fetchProducts();
+                setupRealtimeSubscription();
+                showToast('Shop connected to live database!');
             }
 
             init();

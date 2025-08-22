@@ -7,6 +7,7 @@
     <meta name="description" content="Admin panel for managing products at Umair Bakers & General Store. Add, edit, and delete bakery products.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -28,6 +29,14 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out" data-testid="toast-notification">
         <span id="toast-message" data-testid="toast-message">Success!</span>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden" data-testid="loading">
+        <div class="bg-white rounded-lg p-8 text-center">
+            <i class="fas fa-spinner fa-spin text-bakery-gold text-3xl mb-4"></i>
+            <p class="text-lg font-semibold text-bakery-brown">Processing...</p>
+        </div>
     </div>
 
     <!-- Login Screen -->
@@ -78,6 +87,9 @@
                     <div class="flex items-center">
                         <i class="fas fa-bread-slice text-bakery-gold text-2xl mr-3"></i>
                         <h1 class="text-xl font-bold text-bakery-brown">Admin Panel</h1>
+                        <span class="ml-4 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                            <i class="fas fa-database mr-1"></i>Live Database
+                        </span>
                     </div>
                     
                     <div class="flex items-center space-x-4">
@@ -96,7 +108,7 @@
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Statistics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -115,7 +127,7 @@
                             <i class="fas fa-dollar-sign text-green-500 text-2xl"></i>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Avg Product Price</p>
+                            <p class="text-sm font-medium text-gray-500">Avg Price</p>
                             <p class="text-2xl font-bold text-gray-900">$<span id="avg-price" data-testid="text-avg-price">0.00</span></p>
                         </div>
                     </div>
@@ -124,7 +136,19 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-clock text-blue-500 text-2xl"></i>
+                            <i class="fas fa-database text-blue-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Database</p>
+                            <p class="text-lg font-bold text-green-600" id="db-status" data-testid="text-db-status">Connected</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-purple-500 text-2xl"></i>
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-500">Last Updated</p>
@@ -139,8 +163,8 @@
                 <button id="add-product-btn" class="bg-bakery-gold text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-add-product">
                     <i class="fas fa-plus mr-2"></i>Add New Product
                 </button>
-                <button id="bulk-actions-btn" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors" data-testid="button-bulk-actions">
-                    <i class="fas fa-tasks mr-2"></i>Bulk Actions
+                <button id="refresh-btn" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors" data-testid="button-refresh">
+                    <i class="fas fa-sync mr-2"></i>Refresh Data
                 </button>
                 <button id="export-btn" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors" data-testid="button-export">
                     <i class="fas fa-download mr-2"></i>Export Data
@@ -149,8 +173,9 @@
 
             <!-- Products Table -->
             <div class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-gray-900">Product Management</h3>
+                    <span class="text-sm text-gray-500">Real-time database updates</span>
                 </div>
                 
                 <div class="overflow-x-auto">
@@ -235,66 +260,156 @@
     <!-- JavaScript -->
     <script>
         (function() {
-            // Default products with better variety
-            const defaultProducts = [
-                {
-                    id: 1,
-                    name: "Fresh White Bread",
-                    price: 2.99,
-                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Soft and fluffy white bread, baked fresh daily with premium ingredients"
-                },
-                {
-                    id: 2,
-                    name: "Chocolate Croissant",
-                    price: 3.49,
-                    image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Buttery croissant filled with rich chocolate, perfect for breakfast"
-                },
-                {
-                    id: 3,
-                    name: "Blueberry Muffin",
-                    price: 2.49,
-                    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Moist muffin packed with fresh blueberries and a golden top"
-                },
-                {
-                    id: 4,
-                    name: "Sourdough Loaf",
-                    price: 4.99,
-                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Artisan sourdough with perfect crust and tangy flavor profile"
-                },
-                {
-                    id: 5,
-                    name: "Apple Pie",
-                    price: 12.99,
-                    image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Classic apple pie with flaky crust and cinnamon-spiced filling"
-                },
-                {
-                    id: 6,
-                    name: "Cinnamon Roll",
-                    price: 3.99,
-                    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Sweet and gooey cinnamon roll with vanilla glaze topping"
-                }
-            ];
+            // Supabase configuration
+            const supabaseUrl = 'https://gsdmikfgxrbgwlkoudrq.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZG1pa2ZneHJiZ3dsa291ZHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NzczOTUsImV4cCI6MjA3MTQ1MzM5NX0.vf2jfXD2MbkO4hzpLPVUHpf-mETWcMT0kNnWtRH3e0c';
+            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
             // State management
-            let products = JSON.parse(localStorage.getItem('bakery_products')) || defaultProducts;
-            let nextId = Math.max(...products.map(p => p.id)) + 1;
+            let products = [];
             let isLoggedIn = false;
 
             // Admin credentials
             const ADMIN_EMAIL = "iamsocialpromoter@gmail.com";
             const ADMIN_PASSWORD = "umair123";
 
-            // Utility functions
-            function saveProducts() {
-                localStorage.setItem('bakery_products', JSON.stringify(products));
-                updateStatistics();
-                updateLastUpdated();
+            // Database operations
+            async function fetchProducts() {
+                try {
+                    showLoading(true);
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('*')
+                        .order('id', { ascending: true });
+
+                    if (error) {
+                        console.error('Error fetching products:', error);
+                        showToast('Error loading products from database', 'error');
+                        document.getElementById('db-status').textContent = 'Error';
+                        document.getElementById('db-status').className = 'text-lg font-bold text-red-600';
+                        return;
+                    }
+
+                    products = data || [];
+                    document.getElementById('db-status').textContent = 'Connected';
+                    document.getElementById('db-status').className = 'text-lg font-bold text-green-600';
+                    updateStatistics();
+                    renderProducts();
+                    showToast(`Loaded ${products.length} products from database`);
+                } catch (error) {
+                    console.error('Database connection error:', error);
+                    showToast('Database connection failed', 'error');
+                    document.getElementById('db-status').textContent = 'Offline';
+                    document.getElementById('db-status').className = 'text-lg font-bold text-red-600';
+                } finally {
+                    showLoading(false);
+                    updateLastUpdated();
+                }
+            }
+
+            async function addProduct(productData) {
+                try {
+                    showLoading(true);
+                    const { data, error } = await supabase
+                        .from('products')
+                        .insert([productData])
+                        .select();
+
+                    if (error) {
+                        console.error('Error adding product:', error);
+                        showToast('Failed to add product to database', 'error');
+                        return false;
+                    }
+
+                    showToast(`"${productData.name}" added to database successfully!`);
+                    await fetchProducts();
+                    return true;
+                } catch (error) {
+                    console.error('Add product error:', error);
+                    showToast('Database error while adding product', 'error');
+                    return false;
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function updateProduct(id, productData) {
+                try {
+                    showLoading(true);
+                    const { data, error } = await supabase
+                        .from('products')
+                        .update(productData)
+                        .eq('id', id)
+                        .select();
+
+                    if (error) {
+                        console.error('Error updating product:', error);
+                        showToast('Failed to update product in database', 'error');
+                        return false;
+                    }
+
+                    showToast(`"${productData.name}" updated in database successfully!`);
+                    await fetchProducts();
+                    return true;
+                } catch (error) {
+                    console.error('Update product error:', error);
+                    showToast('Database error while updating product', 'error');
+                    return false;
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function deleteProduct(id) {
+                try {
+                    showLoading(true);
+                    const { error } = await supabase
+                        .from('products')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) {
+                        console.error('Error deleting product:', error);
+                        showToast('Failed to delete product from database', 'error');
+                        return false;
+                    }
+
+                    showToast('Product deleted from database successfully!');
+                    await fetchProducts();
+                    return true;
+                } catch (error) {
+                    console.error('Delete product error:', error);
+                    showToast('Database error while deleting product', 'error');
+                    return false;
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            // Real-time subscription
+            function setupRealtimeSubscription() {
+                const subscription = supabase
+                    .channel('products')
+                    .on('postgres_changes', 
+                        { event: '*', schema: 'public', table: 'products' },
+                        (payload) => {
+                            console.log('Real-time update:', payload);
+                            fetchProducts();
+                        }
+                    )
+                    .subscribe();
+
+                return subscription;
+            }
+
+            // UI functions
+            function showLoading(show) {
+                const loading = document.getElementById('loading');
+                if (show) {
+                    loading.classList.remove('hidden');
+                } else {
+                    loading.classList.add('hidden');
+                }
             }
 
             function showToast(message, type = 'success') {
@@ -316,7 +431,7 @@
             function updateStatistics() {
                 document.getElementById('total-products').textContent = products.length;
                 const avgPrice = products.length > 0 ? 
-                    (products.reduce((sum, p) => sum + p.price, 0) / products.length).toFixed(2) : '0.00';
+                    (products.reduce((sum, p) => sum + Number(p.price), 0) / products.length).toFixed(2) : '0.00';
                 document.getElementById('avg-price').textContent = avgPrice;
             }
 
@@ -326,7 +441,7 @@
             }
 
             // Authentication
-            document.getElementById('login-form').addEventListener('submit', (e) => {
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const email = document.getElementById('email').value;
@@ -337,9 +452,9 @@
                     isLoggedIn = true;
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('admin-dashboard').classList.remove('hidden');
-                    showToast('Login successful! Admin panel loaded.');
-                    renderProducts();
-                    updateStatistics();
+                    showToast('Login successful! Connecting to database...');
+                    await fetchProducts();
+                    setupRealtimeSubscription();
                 } else {
                     errorMessage.textContent = 'Invalid email or password. Please try again.';
                     errorMessage.classList.remove('hidden');
@@ -356,7 +471,7 @@
                 showToast('Logged out successfully!');
             });
 
-            // Product management
+            // Product management UI
             function renderProducts() {
                 const tableBody = document.getElementById('products-table-body');
                 tableBody.innerHTML = '';
@@ -365,8 +480,8 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                            <i class="fas fa-box-open text-4xl mb-4"></i>
-                            <p class="text-lg">No products found</p>
+                            <i class="fas fa-database text-4xl mb-4"></i>
+                            <p class="text-lg">No products in database</p>
                             <p class="text-sm">Add your first product to get started</p>
                         </td>
                     `;
@@ -387,7 +502,7 @@
                             <div class="truncate" title="${product.name}">${product.name}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-testid="text-product-price-${product.id}">
-                            <span class="font-semibold text-green-600">$${product.price.toFixed(2)}</span>
+                            <span class="font-semibold text-green-600">$${Number(product.price).toFixed(2)}</span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 max-w-xs" data-testid="text-product-description-${product.id}">
                             <div class="truncate" title="${product.description}">${product.description}</div>
@@ -397,7 +512,7 @@
                                 <button onclick="editProduct(${product.id})" class="text-bakery-gold hover:text-yellow-600 p-2 rounded-full hover:bg-yellow-50 transition-colors" data-testid="button-edit-${product.id}" title="Edit Product">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition-colors" data-testid="button-delete-${product.id}" title="Delete Product">
+                                <button onclick="deleteProductHandler(${product.id})" class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition-colors" data-testid="button-delete-${product.id}" title="Delete Product">
                                     <i class="fas fa-trash"></i>
                                 </button>
                                 <button onclick="duplicateProduct(${product.id})" class="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-colors" data-testid="button-duplicate-${product.id}" title="Duplicate Product">
@@ -418,7 +533,7 @@
 
             document.getElementById('add-product-btn').addEventListener('click', () => {
                 modalTitle.textContent = 'Add New Product';
-                submitBtnText.textContent = 'Add Product';
+                submitBtnText.textContent = 'Add to Database';
                 productForm.reset();
                 document.getElementById('product-id').value = '';
                 modal.classList.remove('hidden');
@@ -445,7 +560,7 @@
                 if (!product) return;
 
                 modalTitle.textContent = 'Edit Product';
-                submitBtnText.textContent = 'Update Product';
+                submitBtnText.textContent = 'Update in Database';
                 
                 document.getElementById('product-id').value = product.id;
                 document.getElementById('product-name').value = product.name;
@@ -457,35 +572,31 @@
                 document.getElementById('product-name').focus();
             };
 
-            window.deleteProduct = function(id) {
+            window.deleteProductHandler = async function(id) {
                 const product = products.find(p => p.id === id);
                 if (!product) return;
 
-                if (confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
-                    products = products.filter(p => p.id !== id);
-                    saveProducts();
-                    renderProducts();
-                    showToast(`"${product.name}" deleted successfully!`);
+                if (confirm(`Are you sure you want to delete "${product.name}" from the database? This action cannot be undone and will remove it from the public shop.`)) {
+                    await deleteProduct(id);
                 }
             };
 
-            window.duplicateProduct = function(id) {
+            window.duplicateProduct = async function(id) {
                 const product = products.find(p => p.id === id);
                 if (!product) return;
 
                 const newProduct = { 
-                    ...product, 
-                    id: nextId++, 
-                    name: `${product.name} (Copy)` 
+                    name: `${product.name} (Copy)`,
+                    price: product.price,
+                    image: product.image,
+                    description: product.description
                 };
-                products.push(newProduct);
-                saveProducts();
-                renderProducts();
-                showToast(`"${product.name}" duplicated successfully!`);
+                
+                await addProduct(newProduct);
             };
 
             // Form submission
-            productForm.addEventListener('submit', (e) => {
+            productForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const id = document.getElementById('product-id').value;
@@ -508,28 +619,23 @@
                     return;
                 }
 
+                const productData = { name, price, image, description };
+
+                let success = false;
                 if (id) {
-                    // Update existing product
-                    const productIndex = products.findIndex(p => p.id === parseInt(id));
-                    if (productIndex !== -1) {
-                        products[productIndex] = { id: parseInt(id), name, price, image, description };
-                        showToast(`"${name}" updated successfully!`);
-                    }
+                    success = await updateProduct(parseInt(id), productData);
                 } else {
-                    // Add new product
-                    const newProduct = { id: nextId++, name, price, image, description };
-                    products.push(newProduct);
-                    showToast(`"${name}" added successfully!`);
+                    success = await addProduct(productData);
                 }
 
-                saveProducts();
-                renderProducts();
-                modal.classList.add('hidden');
+                if (success) {
+                    modal.classList.add('hidden');
+                }
             });
 
             // Additional features
-            document.getElementById('bulk-actions-btn').addEventListener('click', () => {
-                showToast('Bulk actions feature coming soon!');
+            document.getElementById('refresh-btn').addEventListener('click', async () => {
+                await fetchProducts();
             });
 
             document.getElementById('export-btn').addEventListener('click', () => {
@@ -546,18 +652,11 @@
 
             // Initialize
             function init() {
-                if (!localStorage.getItem('bakery_products')) {
-                    localStorage.setItem('bakery_products', JSON.stringify(defaultProducts));
-                }
-                
                 // Show login screen
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('hidden');
                 
-                // Auto-login for demo (remove in production)
-                setTimeout(() => {
-                    showToast('Admin panel ready! Use demo credentials to login.');
-                }, 1000);
+                showToast('Admin panel ready! Database integration active.');
             }
 
             init();
