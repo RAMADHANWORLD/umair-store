@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umair Bakers & General Store - Fresh Baked Daily</title>
+    <meta name="description" content="Discover fresh breads, pastries, and general store essentials at Umair Bakers. Made with love, served with care. Shop online for delivery.">
+    <meta property="og:title" content="Umair Bakers & General Store">
+    <meta property="og:description" content="Fresh baked goods delivered to your door. Premium breads, pastries, and more.">
+    <meta property="og:type" content="website">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bakery: {
+                            cream: '#FEF7ED',
+                            gold: '#F59E0B',
+                            brown: '#92400E',
+                            beige: '#FEF3C7'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-bakery-cream">
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out" data-testid="toast-notification">
+        <span id="toast-message" data-testid="toast-message">Link copied!</span>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b-2 border-bakery-gold">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-bread-slice text-bakery-gold text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold text-bakery-brown">Umair Bakers & General Store</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="cart-btn" class="relative bg-bakery-gold text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-cart">
+                        <i class="fas fa-shopping-cart mr-2"></i>
+                        Cart (<span id="cart-count" data-testid="text-cart-count">0</span>)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-bakery-beige to-bakery-cream py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-bold text-bakery-brown mb-4">Fresh Baked Daily</h2>
+            <p class="text-lg text-gray-700 max-w-2xl mx-auto">Discover our delicious selection of fresh breads, pastries, and general store essentials. Made with love, served with care.</p>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-2xl font-bold text-bakery-brown mb-8">Our Products</h3>
+            
+            <!-- Product Grid -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" data-testid="products-grid">
+                <!-- Products will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-testid="cart-modal">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full max-h-96 overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-bakery-brown">Shopping Cart</h3>
+                        <button id="close-cart" class="text-gray-500 hover:text-gray-700" data-testid="button-close-cart">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="cart-items" class="space-y-4 mb-6" data-testid="cart-items">
+                        <!-- Cart items will be dynamically added here -->
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-lg font-bold">Total: $<span id="cart-total" data-testid="text-cart-total">0.00</span></span>
+                        </div>
+                        <button class="w-full bg-bakery-gold text-white py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-checkout">
+                            Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            // Load products from localStorage or use default
+            const defaultProducts = [
+                {
+                    id: 1,
+                    name: "Fresh White Bread",
+                    price: 2.99,
+                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Soft and fluffy white bread, baked fresh daily"
+                },
+                {
+                    id: 2,
+                    name: "Chocolate Croissant",
+                    price: 3.49,
+                    image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Buttery croissant filled with rich chocolate"
+                },
+                {
+                    id: 3,
+                    name: "Blueberry Muffin",
+                    price: 2.49,
+                    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Moist muffin packed with fresh blueberries"
+                },
+                {
+                    id: 4,
+                    name: "Sourdough Loaf",
+                    price: 4.99,
+                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Artisan sourdough with perfect crust and texture"
+                },
+                {
+                    id: 5,
+                    name: "Apple Pie",
+                    price: 12.99,
+                    image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Classic apple pie with flaky crust"
+                },
+                {
+                    id: 6,
+                    name: "Cinnamon Roll",
+                    price: 3.99,
+                    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Sweet and gooey cinnamon roll with glaze"
+                }
+            ];
+
+            let products = JSON.parse(localStorage.getItem('bakery_products')) || defaultProducts;
+            let cart = JSON.parse(localStorage.getItem('bakery_cart')) || [];
+
+            // Sync products with localStorage when updated by admin
+            function syncProducts() {
+                const stored = JSON.parse(localStorage.getItem('bakery_products'));
+                if (stored) {
+                    products = stored;
+                    renderProducts();
+                }
+            }
+
+            // Listen for storage changes (when admin updates products)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'bakery_products') {
+                    syncProducts();
+                }
+            });
+
+            // Check for updates every 2 seconds
+            setInterval(syncProducts, 2000);
+
+            // Generate short link (placeholder for Firebase Dynamic Links)
+            function getShortLink(productId) {
+                return `https://umairbakers.page.link/${productId}`;
+            }
+
+            // Share product function
+            async function shareProduct(product) {
+                const url = getShortLink(product.id);
+                const text = `Check out ${product.name} at Umair Bakers & General Store!`;
+
+                if (navigator.share) {
+                    try {
+                        await navigator.share({ 
+                            title: product.name, 
+                            text: text, 
+                            url: url 
+                        });
+                    } catch (error) {
+                        console.log('Share cancelled or failed');
+                    }
+                } else {
+                    // Fallback: copy to clipboard
+                    try {
+                        await navigator.clipboard.writeText(url);
+                        showToast("Link copied!");
+                    } catch (error) {
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = url;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        showToast("Link copied!");
+                    }
+                }
+            }
+
+            // WhatsApp share function
+            function shareToWhatsApp(product) {
+                const url = getShortLink(product.id);
+                const text = `Check this product: ${url}`;
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+
+            // Show toast notification
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
+                toastMessage.textContent = message;
+                
+                toast.classList.remove('translate-x-full');
+                toast.classList.add('translate-x-0');
+                
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-0');
+                    toast.classList.add('translate-x-full');
+                }, 3000);
+            }
+
+            // Add to cart function
+            function addToCart(product) {
+                const existingItem = cart.find(item => item.id === product.id);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({ ...product, quantity: 1 });
+                }
+                
+                localStorage.setItem('bakery_cart', JSON.stringify(cart));
+                updateCartCount();
+                showToast(`${product.name} added to cart!`);
+            }
+
+            // Remove from cart function
+            function removeFromCart(productId) {
+                cart = cart.filter(item => item.id !== productId);
+                localStorage.setItem('bakery_cart', JSON.stringify(cart));
+                updateCartCount();
+                renderCartItems();
+            }
+
+            // Update cart count
+            function updateCartCount() {
+                const cartCount = document.getElementById('cart-count');
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartCount.textContent = totalItems;
+            }
+
+            // Render products
+            function renderProducts() {
+                const productsGrid = document.getElementById('products-grid');
+                productsGrid.innerHTML = '';
+
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow';
+                    productCard.setAttribute('data-testid', `card-product-${product.id}`);
+                    
+                    productCard.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover" data-testid="img-product-${product.id}">
+                        <div class="p-4">
+                            <h4 class="text-lg font-semibold text-bakery-brown mb-2" data-testid="text-product-name-${product.id}">${product.name}</h4>
+                            <p class="text-gray-600 text-sm mb-3" data-testid="text-product-description-${product.id}">${product.description}</p>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xl font-bold text-bakery-gold" data-testid="text-product-price-${product.id}">$${product.price}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="addToCartHandler(${product.id})" class="flex-1 bg-bakery-brown text-white py-2 rounded-lg hover:bg-yellow-800 transition-colors" data-testid="button-add-cart-${product.id}">
+                                    <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                                </button>
+                                <div class="relative">
+                                    <button onclick="toggleShareMenu(${product.id})" class="bg-bakery-gold text-white p-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-share-${product.id}">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                    <div id="share-menu-${product.id}" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border hidden z-10" data-testid="menu-share-${product.id}">
+                                        <button onclick="shareProductHandler(${product.id})" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-lg" data-testid="button-share-link-${product.id}">
+                                            <i class="fas fa-share mr-2 text-bakery-gold"></i>Share
+                                        </button>
+                                        <button onclick="shareToWhatsAppHandler(${product.id})" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-lg" data-testid="button-share-whatsapp-${product.id}">
+                                            <i class="fab fa-whatsapp mr-2 text-green-500"></i>WhatsApp
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    productsGrid.appendChild(productCard);
+                });
+            }
+
+            // Toggle share menu
+            function toggleShareMenu(productId) {
+                const menu = document.getElementById(`share-menu-${productId}`);
+                const isHidden = menu.classList.contains('hidden');
+                
+                // Close all other menus
+                document.querySelectorAll('[id^="share-menu-"]').forEach(m => m.classList.add('hidden'));
+                
+                if (isHidden) {
+                    menu.classList.remove('hidden');
+                } else {
+                    menu.classList.add('hidden');
+                }
+            }
+
+            // Event handlers
+            window.addToCartHandler = function(productId) {
+                const product = products.find(p => p.id === productId);
+                if (product) addToCart(product);
+            };
+
+            window.shareProductHandler = function(productId) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    shareProduct(product);
+                    document.getElementById(`share-menu-${productId}`).classList.add('hidden');
+                }
+            };
+
+            window.shareToWhatsAppHandler = function(productId) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    shareToWhatsApp(product);
+                    document.getElementById(`share-menu-${productId}`).classList.add('hidden');
+                }
+            };
+
+            window.toggleShareMenu = toggleShareMenu;
+
+            // Render cart items
+            function renderCartItems() {
+                const cartItems = document.getElementById('cart-items');
+                const cartTotal = document.getElementById('cart-total');
+                
+                if (cart.length === 0) {
+                    cartItems.innerHTML = '<p class="text-gray-500 text-center py-4" data-testid="text-cart-empty">Your cart is empty</p>';
+                    cartTotal.textContent = '0.00';
+                    return;
+                }
+
+                cartItems.innerHTML = '';
+                let total = 0;
+
+                cart.forEach(item => {
+                    total += item.price * item.quantity;
+                    
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                    cartItem.setAttribute('data-testid', `cart-item-${item.id}`);
+                    cartItem.innerHTML = `
+                        <div>
+                            <h5 class="font-semibold" data-testid="text-cart-item-name-${item.id}">${item.name}</h5>
+                            <p class="text-sm text-gray-600" data-testid="text-cart-item-details-${item.id}">$${item.price} × ${item.quantity}</p>
+                        </div>
+                        <button onclick="removeFromCartHandler(${item.id})" class="text-red-500 hover:text-red-700" data-testid="button-remove-cart-${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    cartItems.appendChild(cartItem);
+                });
+
+                cartTotal.textContent = total.toFixed(2);
+            }
+
+            window.removeFromCartHandler = function(productId) {
+                removeFromCart(productId);
+            };
+
+            // Modal controls
+            document.getElementById('cart-btn').addEventListener('click', () => {
+                document.getElementById('cart-modal').classList.remove('hidden');
+                renderCartItems();
+            });
+
+            document.getElementById('close-cart').addEventListener('click', () => {
+                document.getElementById('cart-modal').classList.add('hidden');
+            });
+
+            // Close share menus when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('[id^="share-menu-"]') && !e.target.closest('button[onclick^="toggleShareMenu"]')) {
+                    document.querySelectorAll('[id^="share-menu-"]').forEach(m => m.classList.add('hidden'));
+                }
+            });
+
+            // Close cart modal when clicking outside
+            document.getElementById('cart-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('cart-modal')) {
+                    document.getElementById('cart-modal').classList.add('hidden');
+                }
+            });
+
+            // Initialize
+            renderProducts();
+            updateCartCount();
+
+            // Save default products to localStorage if not exists
+            if (!localStorage.getItem('bakery_products')) {
+                localStorage.setItem('bakery_products', JSON.stringify(defaultProducts));
+            }
+        })();
+    </script>
+</body>
+</html>
