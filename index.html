@@ -34,14 +34,6 @@
         <span id="toast-message" data-testid="toast-message">Success!</span>
     </div>
 
-    <!-- Loading Indicator -->
-    <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" data-testid="loading">
-        <div class="bg-white rounded-lg p-8 text-center">
-            <i class="fas fa-spinner fa-spin text-bakery-gold text-3xl mb-4"></i>
-            <p class="text-lg font-semibold text-bakery-brown">Loading products...</p>
-        </div>
-    </div>
-
     <!-- Header -->
     <header class="bg-white shadow-sm border-b-2 border-bakery-gold">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -172,130 +164,147 @@
             // Supabase configuration
             const supabaseUrl = 'https://gsdmikfgxrbgwlkoudrq.supabase.co';
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZG1pa2ZneHJiZ3dsa291ZHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NzczOTUsImV4cCI6MjA3MTQ1MzM5NX0.vf2jfXD2MbkO4hzpLPVUHpf-mETWcMT0kNnWtRH3e0c';
-            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-            // State management
+            
+            // Initialize Supabase client
+            let supabaseClient = null;
             let products = [];
             let cart = JSON.parse(localStorage.getItem('bakery_cart')) || [];
+
+            // Default products (fallback)
+            const defaultProducts = [
+                {
+                    id: 1,
+                    name: "Fresh White Bread",
+                    price: 2.99,
+                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Soft and fluffy white bread, baked fresh daily"
+                },
+                {
+                    id: 2,
+                    name: "Chocolate Croissant",
+                    price: 3.49,
+                    image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Buttery croissant filled with rich chocolate"
+                },
+                {
+                    id: 3,
+                    name: "Blueberry Muffin",
+                    price: 2.49,
+                    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Moist muffin packed with fresh blueberries"
+                },
+                {
+                    id: 4,
+                    name: "Sourdough Loaf",
+                    price: 4.99,
+                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Artisan sourdough with perfect crust and texture"
+                },
+                {
+                    id: 5,
+                    name: "Apple Pie",
+                    price: 12.99,
+                    image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Classic apple pie with flaky crust"
+                },
+                {
+                    id: 6,
+                    name: "Cinnamon Roll",
+                    price: 3.99,
+                    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+                    description: "Sweet and gooey cinnamon roll with glaze"
+                }
+            ];
+
+            // Initialize Supabase
+            function initSupabase() {
+                try {
+                    if (typeof window.supabase !== 'undefined') {
+                        supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+                        console.log('Supabase client initialized');
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('Supabase initialization error:', error);
+                }
+                return false;
+            }
 
             // Database operations
             async function fetchProducts() {
                 try {
-                    showLoading(true);
-                    const { data, error } = await supabase
+                    if (!supabaseClient) {
+                        throw new Error('Supabase not initialized');
+                    }
+
+                    const { data, error } = await supabaseClient
                         .from('products')
                         .select('*')
                         .order('id', { ascending: true });
 
                     if (error) {
-                        console.error('Error fetching products:', error);
-                        await initializeDefaultProducts();
-                        return;
+                        throw error;
                     }
 
                     products = data || [];
                     if (products.length === 0) {
                         await initializeDefaultProducts();
                     }
+                    
+                    console.log(`Loaded ${products.length} products from database`);
+                    showToast(`Loaded ${products.length} products from live database!`);
+                    
                 } catch (error) {
-                    console.error('Database connection error:', error);
-                    showToast('Using offline mode', 'error');
-                } finally {
-                    showLoading(false);
-                    renderProducts();
+                    console.error('Error fetching products:', error);
+                    products = defaultProducts;
+                    showToast('Using offline products - Database connection failed', 'error');
                 }
+                
+                renderProducts();
             }
 
             async function initializeDefaultProducts() {
-                const defaultProducts = [
-                    {
-                        name: "Fresh White Bread",
-                        price: 2.99,
-                        image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                        description: "Soft and fluffy white bread, baked fresh daily"
-                    },
-                    {
-                        name: "Chocolate Croissant",
-                        price: 3.49,
-                        image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                        description: "Buttery croissant filled with rich chocolate"
-                    },
-                    {
-                        name: "Blueberry Muffin",
-                        price: 2.49,
-                        image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                        description: "Moist muffin packed with fresh blueberries"
-                    },
-                    {
-                        name: "Sourdough Loaf",
-                        price: 4.99,
-                        image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                        description: "Artisan sourdough with perfect crust and texture"
-                    },
-                    {
-                        name: "Apple Pie",
-                        price: 12.99,
-                        image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                        description: "Classic apple pie with flaky crust"
-                    },
-                    {
-                        name: "Cinnamon Roll",
-                        price: 3.99,
-                        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                        description: "Sweet and gooey cinnamon roll with glaze"
-                    }
-                ];
-
+                if (!supabaseClient) return;
+                
                 try {
-                    // Check if products table exists and has data
-                    const { data: existingProducts } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('products')
-                        .select('id')
-                        .limit(1);
+                        .insert(defaultProducts.map(p => ({ name: p.name, price: p.price, image: p.image, description: p.description })))
+                        .select();
 
-                    if (!existingProducts || existingProducts.length === 0) {
-                        // Insert default products
-                        const { data, error } = await supabase
-                            .from('products')
-                            .insert(defaultProducts)
-                            .select();
-
-                        if (!error && data) {
-                            products = data;
-                            showToast('Products initialized successfully!');
-                        }
+                    if (!error && data) {
+                        products = data;
+                        showToast('Database initialized with default products!');
                     }
                 } catch (error) {
                     console.error('Error initializing products:', error);
                 }
             }
 
-            // Real-time subscription for product updates
+            // Real-time subscription
             function setupRealtimeSubscription() {
-                const subscription = supabase
-                    .channel('products')
-                    .on('postgres_changes', 
-                        { event: '*', schema: 'public', table: 'products' },
-                        (payload) => {
-                            console.log('Real-time update:', payload);
-                            fetchProducts();
-                        }
-                    )
-                    .subscribe();
+                if (!supabaseClient) return;
+                
+                try {
+                    const subscription = supabaseClient
+                        .channel('products')
+                        .on('postgres_changes', 
+                            { event: '*', schema: 'public', table: 'products' },
+                            (payload) => {
+                                console.log('Real-time update:', payload);
+                                fetchProducts();
+                            }
+                        )
+                        .subscribe();
 
-                return subscription;
-            }
-
-            // UI functions
-            function showLoading(show) {
-                const loading = document.getElementById('loading');
-                if (show) {
-                    loading.classList.remove('hidden');
-                } else {
-                    loading.classList.add('hidden');
+                    console.log('Real-time subscription setup');
+                    return subscription;
+                } catch (error) {
+                    console.error('Real-time subscription error:', error);
                 }
             }
 
+            // UI functions
             function showToast(message, type = 'success') {
                 const toast = document.getElementById('toast');
                 const toastMessage = document.getElementById('toast-message');
@@ -396,7 +405,7 @@
                         <div class="col-span-full text-center py-12">
                             <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
                             <h3 class="text-xl font-semibold text-gray-600 mb-2">No products available</h3>
-                            <p class="text-gray-500">Products will appear here once they are added by the admin.</p>
+                            <p class="text-gray-500">Products will appear here once they are added.</p>
                         </div>
                     `;
                     return;
@@ -613,12 +622,27 @@
             // Initialize app
             async function init() {
                 updateCartCount();
-                await fetchProducts();
-                setupRealtimeSubscription();
-                showToast('Shop connected to live database!');
+                
+                // Initialize Supabase and load products
+                const supabaseInitialized = initSupabase();
+                if (supabaseInitialized) {
+                    await fetchProducts();
+                    setupRealtimeSubscription();
+                    showToast('Shop connected to live database!');
+                } else {
+                    // Fallback to default products
+                    products = defaultProducts;
+                    renderProducts();
+                    showToast('Shop loaded with demo products!');
+                }
             }
 
-            init();
+            // Start the app when page loads
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
         })();
     </script>
 </body>
