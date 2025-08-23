@@ -3,664 +3,933 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Umair Bakers & General Store</title>
-    <meta name="description" content="Admin panel for managing products at Umair Bakers & General Store. Add, edit, and delete bakery products.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bakery: {
-                            cream: '#FEF7ED',
-                            gold: '#F59E0B',
-                            brown: '#92400E',
-                            beige: '#FEF3C7'
-                        }
-                    }
-                }
+    <title>Admin Panel - Umair Bakers & general Store</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .admin-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .admin-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            background: #0f766e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .admin-logo span {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f766e;
+        }
+
+        .admin-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-user {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #0f766e;
+            font-weight: 500;
+        }
+
+        /* Navigation */
+        .admin-nav {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .nav-tabs {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+        }
+
+        .nav-tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            color: #0f766e;
+            border-bottom-color: #0f766e;
+        }
+
+        .nav-tab:hover {
+            color: #0f766e;
+        }
+
+        /* Content */
+        .tab-content {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .tab-header h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        /* Buttons */
+        .add-btn {
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-btn:hover {
+            background: #0d5a54;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .action-btn.edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .save-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Tables */
+        .admin-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .admin-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .admin-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .product-table-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 10px;
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-confirmed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .modal-content.large {
+            max-width: 800px;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-close:hover {
+            color: #374151;
+        }
+
+        /* Forms */
+        .product-form {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0f766e;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .cancel-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Settings */
+        .settings-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .settings-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .settings-section h3 {
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .settings-section small {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        /* Sales Summary */
+        .sales-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .summary-card h3 {
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-amount,
+        .total-count {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f766e;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1002;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #10b981;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-header-content {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
             }
-        };
-    </script>
+
+            .nav-tabs {
+                padding: 0 1rem;
+                overflow-x: auto;
+            }
+
+            .tab-content {
+                padding: 1rem;
+            }
+
+            .tab-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sales-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out" data-testid="toast-notification">
-        <span id="toast-message" data-testid="toast-message">Success!</span>
-    </div>
-
-    <!-- Loading Indicator -->
-    <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden" data-testid="loading">
-        <div class="bg-white rounded-lg p-8 text-center">
-            <i class="fas fa-spinner fa-spin text-bakery-gold text-3xl mb-4"></i>
-            <p class="text-lg font-semibold text-bakery-brown">Processing...</p>
-        </div>
-    </div>
-
-    <!-- Login Screen -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-bakery-beige to-bakery-cream" data-testid="login-screen">
-        <div class="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
-            <div class="text-center mb-8">
-                <i class="fas fa-bread-slice text-bakery-gold text-4xl mb-4"></i>
-                <h2 class="text-2xl font-bold text-bakery-brown">Admin Login</h2>
-                <p class="text-gray-600">Umair Bakers & General Store</p>
-            </div>
-            
-            <form id="login-form" class="space-y-6" data-testid="form-login">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="email" required value="iamsocialpromoter@gmail.com"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold focus:border-transparent"
-                           placeholder="Enter your email" data-testid="input-email">
-                </div>
-                
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input type="password" id="password" required value="umair123"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold focus:border-transparent"
-                           placeholder="Enter your password" data-testid="input-password">
-                </div>
-                
-                <div id="error-message" class="text-red-500 text-sm hidden" data-testid="text-error"></div>
-                
-                <button type="submit" class="w-full bg-bakery-gold text-white py-2 rounded-lg hover:bg-yellow-600 transition-colors font-medium" data-testid="button-login">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Login
-                </button>
-            </form>
-            
-            <div class="mt-6 text-center text-sm text-gray-600">
-                <p>Admin Credentials:</p>
-                <p><strong>Email:</strong> iamsocialpromoter@gmail.com</p>
-                <p><strong>Password:</strong> umair123</p>
-            </div>
-        </div>
-    </div>
-
+<body>
     <!-- Admin Dashboard -->
-    <div id="admin-dashboard" class="hidden min-h-screen" data-testid="admin-dashboard">
+    <div class="admin-dashboard">
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b-2 border-bakery-gold">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center">
-                        <i class="fas fa-bread-slice text-bakery-gold text-2xl mr-3"></i>
-                        <h1 class="text-xl font-bold text-bakery-brown">Admin Panel</h1>
-                        <span class="ml-4 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                            <i class="fas fa-database mr-1"></i>Live Database
-                        </span>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <a href="index.html" class="bg-bakery-brown text-white px-4 py-2 rounded-lg hover:bg-yellow-800 transition-colors" data-testid="link-shop">
-                            <i class="fas fa-store mr-2"></i>View Shop
-                        </a>
-                        <span class="text-gray-700" data-testid="text-welcome">Welcome, Admin</span>
-                        <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors" data-testid="button-logout">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                        </button>
-                    </div>
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-logo">
+                    <div class="logo-img">UB</div>
+                    <span>Admin Panel</span>
+                </div>
+                
+                <div class="admin-actions">
+                    <span class="admin-user">Administrator</span>
+                    <a href="index.html" class="back-link">← Back to Store</a>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-box text-bakery-gold text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Total Products</p>
-                            <p class="text-2xl font-bold text-gray-900" id="total-products" data-testid="text-total-products">0</p>
-                        </div>
-                    </div>
+        <!-- Navigation Tabs -->
+        <nav class="admin-nav">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="products">Products</button>
+                <button class="nav-tab" data-tab="orders">Orders</button>
+                <button class="nav-tab" data-tab="sales">Sales</button>
+                <button class="nav-tab" data-tab="settings">Settings</button>
+            </div>
+        </nav>
+
+        <!-- Products Tab -->
+        <div class="tab-content active" id="productsTab">
+            <div class="tab-header">
+                <h2>Products Management</h2>
+                <button class="add-btn" id="addProductBtn" onclick="window.openProductModal()">Add New Product</button>
+            </div>
+            
+            <div class="products-table-container">
+                <table class="admin-table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Unit</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">Loading products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="tab-content" id="ordersTab">
+            <div class="tab-header">
+                <h2>Orders Management</h2>
+                <p style="color: #6b7280;">Orders are handled via WhatsApp. Check your WhatsApp for customer orders.</p>
+            </div>
+            
+            <div class="orders-table-container">
+                <div class="loading">
+                    <p>Orders are managed through WhatsApp messages.</p>
+                    <p>When customers place orders, they will be sent directly to your WhatsApp number.</p>
                 </div>
-                
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-dollar-sign text-green-500 text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Avg Price</p>
-                            <p class="text-2xl font-bold text-gray-900">$<span id="avg-price" data-testid="text-avg-price">0.00</span></p>
-                        </div>
+            </div>
+        </div>
+
+        <!-- Sales Tab -->
+        <div class="tab-content" id="salesTab">
+            <div class="tab-header">
+                <h2>Sales Report</h2>
+                <div class="sales-summary">
+                    <div class="summary-card">
+                        <h3>Total Products</h3>
+                        <span class="total-count" id="totalProductsCount">0</span>
                     </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-database text-blue-500 text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Database</p>
-                            <p class="text-lg font-bold text-green-600" id="db-status" data-testid="text-db-status">Connected</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-clock text-purple-500 text-2xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Last Updated</p>
-                            <p class="text-lg font-bold text-gray-900" id="last-updated" data-testid="text-last-updated">Now</p>
-                        </div>
+                    <div class="summary-card">
+                        <h3>Available Products</h3>
+                        <span class="total-count" id="availableProductsCount">0</span>
                     </div>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-wrap gap-4 mb-8">
-                <button id="add-product-btn" class="bg-bakery-gold text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-add-product">
-                    <i class="fas fa-plus mr-2"></i>Add New Product
-                </button>
-                <button id="refresh-btn" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors" data-testid="button-refresh">
-                    <i class="fas fa-sync mr-2"></i>Refresh Data
-                </button>
-                <button id="export-btn" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors" data-testid="button-export">
-                    <i class="fas fa-download mr-2"></i>Export Data
-                </button>
+            
+            <div class="sales-table-container">
+                <div class="loading">
+                    <p>Sales tracking will be available once the orders system is fully set up.</p>
+                    <p>Currently, you can manage products and receive orders via WhatsApp.</p>
+                </div>
             </div>
+        </div>
 
-            <!-- Products Table -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">Product Management</h3>
-                    <span class="text-sm text-gray-500">Real-time database updates</span>
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settingsTab">
+            <div class="tab-header">
+                <h2>Settings</h2>
+            </div>
+            
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3>WhatsApp Configuration</h3>
+                    <div class="form-group">
+                        <label for="whatsappNumber">Admin WhatsApp Number</label>
+                        <input type="tel" id="whatsappNumber" placeholder="923332491993" value="923332491993">
+                        <small>Format: Country code + number (without +)</small>
+                    </div>
+                    <button class="save-btn" id="saveWhatsappBtn">Save WhatsApp Number</button>
                 </div>
                 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="products-table-body" class="bg-white divide-y divide-gray-200" data-testid="products-table-body">
-                            <!-- Products will be dynamically loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Product Modal -->
-    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-testid="product-modal">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 id="modal-title" class="text-xl font-bold text-bakery-brown" data-testid="text-modal-title">Add Product</h3>
-                        <button id="close-modal" class="text-gray-500 hover:text-gray-700" data-testid="button-close-modal">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
+                <div class="settings-section">
+                    <h3>Store Information</h3>
+                    <div class="form-group">
+                        <label for="storeName">Store Name</label>
+                        <input type="text" id="storeName" value="Umair Bakers & general Store">
                     </div>
-                    
-                    <form id="product-form" class="space-y-4" data-testid="form-product">
-                        <input type="hidden" id="product-id" data-testid="input-product-id">
-                        
-                        <div>
-                            <label for="product-name" class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
-                            <input type="text" id="product-name" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                   placeholder="Enter product name" data-testid="input-product-name">
-                        </div>
-                        
-                        <div>
-                            <label for="product-price" class="block text-sm font-medium text-gray-700 mb-1">Price ($) *</label>
-                            <input type="number" step="0.01" min="0" id="product-price" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                   placeholder="0.00" data-testid="input-product-price">
-                        </div>
-                        
-                        <div>
-                            <label for="product-image" class="block text-sm font-medium text-gray-700 mb-1">Image URL *</label>
-                            <input type="url" id="product-image" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                   placeholder="https://example.com/image.jpg" data-testid="input-product-image">
-                            <p class="text-xs text-gray-500 mt-1">Enter a valid image URL (jpg, png, webp)</p>
-                        </div>
-                        
-                        <div>
-                            <label for="product-description" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
-                            <textarea id="product-description" required rows="3"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                      placeholder="Enter product description" data-testid="input-product-description"></textarea>
-                        </div>
-                        
-                        <div class="flex gap-3 pt-4">
-                            <button type="submit" class="flex-1 bg-bakery-gold text-white py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-submit">
-                                <span id="submit-btn-text" data-testid="text-submit">Add Product</span>
-                            </button>
-                            <button type="button" id="cancel-btn" class="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors" data-testid="button-cancel">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+                    <div class="form-group">
+                        <label for="currency">Currency</label>
+                        <input type="text" id="currency" value="PKR">
+                    </div>
+                    <button class="save-btn" id="saveStoreBtn">Save Store Info</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script>
-        (function() {
-            // Supabase configuration
-            const supabaseUrl = 'https://gsdmikfgxrbgwlkoudrq.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZG1pa2ZneHJiZ3dsa291ZHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NzczOTUsImV4cCI6MjA3MTQ1MzM5NX0.vf2jfXD2MbkO4hzpLPVUHpf-mETWcMT0kNnWtRH3e0c';
-            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-            // State management
-            let products = [];
-            let isLoggedIn = false;
-
-            // Admin credentials
-            const ADMIN_EMAIL = "iamsocialpromoter@gmail.com";
-            const ADMIN_PASSWORD = "umair123";
-
-            // Database operations
-            async function fetchProducts() {
-                try {
-                    showLoading(true);
-                    const { data, error } = await supabase
-                        .from('products')
-                        .select('*')
-                        .order('id', { ascending: true });
-
-                    if (error) {
-                        console.error('Error fetching products:', error);
-                        showToast('Error loading products from database', 'error');
-                        document.getElementById('db-status').textContent = 'Error';
-                        document.getElementById('db-status').className = 'text-lg font-bold text-red-600';
-                        return;
-                    }
-
-                    products = data || [];
-                    document.getElementById('db-status').textContent = 'Connected';
-                    document.getElementById('db-status').className = 'text-lg font-bold text-green-600';
-                    updateStatistics();
-                    renderProducts();
-                    showToast(`Loaded ${products.length} products from database`);
-                } catch (error) {
-                    console.error('Database connection error:', error);
-                    showToast('Database connection failed', 'error');
-                    document.getElementById('db-status').textContent = 'Offline';
-                    document.getElementById('db-status').className = 'text-lg font-bold text-red-600';
-                } finally {
-                    showLoading(false);
-                    updateLastUpdated();
-                }
-            }
-
-            async function addProduct(productData) {
-                try {
-                    showLoading(true);
-                    const { data, error } = await supabase
-                        .from('products')
-                        .insert([productData])
-                        .select();
-
-                    if (error) {
-                        console.error('Error adding product:', error);
-                        showToast('Failed to add product to database', 'error');
-                        return false;
-                    }
-
-                    showToast(`"${productData.name}" added to database successfully!`);
-                    await fetchProducts();
-                    return true;
-                } catch (error) {
-                    console.error('Add product error:', error);
-                    showToast('Database error while adding product', 'error');
-                    return false;
-                } finally {
-                    showLoading(false);
-                }
-            }
-
-            async function updateProduct(id, productData) {
-                try {
-                    showLoading(true);
-                    const { data, error } = await supabase
-                        .from('products')
-                        .update(productData)
-                        .eq('id', id)
-                        .select();
-
-                    if (error) {
-                        console.error('Error updating product:', error);
-                        showToast('Failed to update product in database', 'error');
-                        return false;
-                    }
-
-                    showToast(`"${productData.name}" updated in database successfully!`);
-                    await fetchProducts();
-                    return true;
-                } catch (error) {
-                    console.error('Update product error:', error);
-                    showToast('Database error while updating product', 'error');
-                    return false;
-                } finally {
-                    showLoading(false);
-                }
-            }
-
-            async function deleteProduct(id) {
-                try {
-                    showLoading(true);
-                    const { error } = await supabase
-                        .from('products')
-                        .delete()
-                        .eq('id', id);
-
-                    if (error) {
-                        console.error('Error deleting product:', error);
-                        showToast('Failed to delete product from database', 'error');
-                        return false;
-                    }
-
-                    showToast('Product deleted from database successfully!');
-                    await fetchProducts();
-                    return true;
-                } catch (error) {
-                    console.error('Delete product error:', error);
-                    showToast('Database error while deleting product', 'error');
-                    return false;
-                } finally {
-                    showLoading(false);
-                }
-            }
-
-            // Real-time subscription
-            function setupRealtimeSubscription() {
-                const subscription = supabase
-                    .channel('products')
-                    .on('postgres_changes', 
-                        { event: '*', schema: 'public', table: 'products' },
-                        (payload) => {
-                            console.log('Real-time update:', payload);
-                            fetchProducts();
-                        }
-                    )
-                    .subscribe();
-
-                return subscription;
-            }
-
-            // UI functions
-            function showLoading(show) {
-                const loading = document.getElementById('loading');
-                if (show) {
-                    loading.classList.remove('hidden');
-                } else {
-                    loading.classList.add('hidden');
-                }
-            }
-
-            function showToast(message, type = 'success') {
-                const toast = document.getElementById('toast');
-                const toastMessage = document.getElementById('toast-message');
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Add New Product</h3>
+                <button class="modal-close" id="productModalClose" onclick="window.closeProductModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="productForm" class="product-form">
+                <input type="hidden" id="productId" name="productId">
                 
-                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
-                toastMessage.textContent = message;
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productPrice">Price *</label>
+                        <input type="number" id="productPrice" name="price" step="0.01" required>
+                    </div>
+                </div>
                 
-                toast.classList.remove('translate-x-full');
-                toast.classList.add('translate-x-0');
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productUnit">Unit</label>
+                        <input type="text" id="productUnit" name="unit" placeholder="e.g., per piece, per kg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
+                        <select id="productCategory" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="bakery">Bakery</option>
+                            <option value="groceries">Groceries</option>
+                            <option value="beverages">Beverages</option>
+                            <option value="snacks">Snacks</option>
+                        </select>
+                    </div>
+                </div>
                 
-                setTimeout(() => {
-                    toast.classList.remove('translate-x-0');
-                    toast.classList.add('translate-x-full');
-                }, 3000);
-            }
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" name="description" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productImage">Image URL</label>
+                    <input type="url" id="productImage" name="image" placeholder="https://example.com/image.jpg">
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="productInStock" name="in_stock" checked>
+                        In Stock
+                    </label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="window.closeProductModal()">Cancel</button>
+                    <button type="submit" class="submit-btn" id="saveProductBtn">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            function updateStatistics() {
-                document.getElementById('total-products').textContent = products.length;
-                const avgPrice = products.length > 0 ? 
-                    (products.reduce((sum, p) => sum + Number(p.price), 0) / products.length).toFixed(2) : '0.00';
-                document.getElementById('avg-price').textContent = avgPrice;
-            }
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
 
-            function updateLastUpdated() {
-                const now = new Date();
-                document.getElementById('last-updated').textContent = now.toLocaleTimeString();
-            }
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-            // Authentication
-            document.getElementById('login-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                const errorMessage = document.getElementById('error-message');
-                
-                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                    isLoggedIn = true;
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('admin-dashboard').classList.remove('hidden');
-                    showToast('Login successful! Connecting to database...');
-                    await fetchProducts();
-                    setupRealtimeSubscription();
-                } else {
-                    errorMessage.textContent = 'Invalid email or password. Please try again.';
-                    errorMessage.classList.remove('hidden');
-                    showToast('Login failed!', 'error');
-                }
+    <script type="module">
+        // --- SUPABASE SETUP ---
+        const SUPABASE_URL = 'https://gsdmikfgxrbgwlkoudrq.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZG1pa2ZneHJiZ3dsa291ZHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NzczOTUsImV4cCI6MjA3MTQ1MzM5NX0.vf2jfXD2MbkO4hzpLPVUHpf-mETWcMT0kNnWtRH3e0c';
+
+        const { createClient } = supabase;
+        const dbClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- GLOBAL STATE ---
+        let currentProducts = [];
+
+        // --- DOM ELEMENTS ---
+        const productModal = document.getElementById('productModal');
+        const productForm = document.getElementById('productForm');
+        const productsTableBody = document.getElementById('productsTableBody');
+        const toastContainer = document.getElementById('toastContainer');
+        
+        // --- TOAST NOTIFICATION FUNCTION ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => { toast.classList.add('show'); }, 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
+        // --- DATA FETCHING & RENDERING ---
+        async function fetchProducts() {
+            productsTableBody.innerHTML = '<tr><td colspan="7" class="loading">Loading products...</td></tr>';
+            const { data, error } = await dbClient
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching products:', error);
+                productsTableBody.innerHTML = `<tr><td colspan="7" class="loading">Error: ${error.message}</td></tr>`;
+                showToast('Could not fetch products.', 'error');
+                return;
+            }
+            
+            currentProducts = data;
+            renderProducts(data);
+            updateStats(data);
+        }
+
+        function renderProducts(products) {
+            productsTableBody.innerHTML = ''; 
+            if (products.length === 0) {
+                productsTableBody.innerHTML = '<tr><td colspan="7" class="loading">No products found. Add one!</td></tr>';
+                return;
+            }
+            products.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${product.image ? `<img src="${product.image}" alt="${product.name}" class="product-table-img" onerror="this.outerHTML='<div class=\\'product-table-img\\'>No Image</div>'">` : '<div class="product-table-img">No Image</div>'}</td>
+                    <td>${product.name}</td>
+                    <td>PKR ${product.price}</td>
+                    <td>${product.unit || 'N/A'}</td>
+                    <td style="text-transform: capitalize;">${product.category}</td>
+                    <td><span class="status-badge ${product.in_stock ? 'status-confirmed' : 'status-cancelled'}">${product.in_stock ? 'In Stock' : 'Out of Stock'}</span></td>
+                    <td>
+                        <button class="action-btn edit" data-id="${product.id}">Edit</button>
+                        <button class="action-btn delete" data-id="${product.id}">Delete</button>
+                    </td>
+                `;
+                productsTableBody.appendChild(tr);
             });
+        }
 
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                isLoggedIn = false;
-                document.getElementById('admin-dashboard').classList.add('hidden');
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('login-form').reset();
-                document.getElementById('error-message').classList.add('hidden');
-                showToast('Logged out successfully!');
-            });
+        function updateStats(products) {
+            document.getElementById('totalProductsCount').textContent = products.length;
+            document.getElementById('availableProductsCount').textContent = products.filter(p => p.in_stock).length;
+        }
 
-            // Product management UI
-            function renderProducts() {
-                const tableBody = document.getElementById('products-table-body');
-                tableBody.innerHTML = '';
+        // --- MODAL & FORM CONTROLS ---
+        window.openProductModal = function() {
+            productForm.reset();
+            document.getElementById('productModalTitle').textContent = 'Add New Product';
+            document.getElementById('productId').value = '';
+            productModal.classList.add('open');
+        };
 
-                if (products.length === 0) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                            <i class="fas fa-database text-4xl mb-4"></i>
-                            <p class="text-lg">No products in database</p>
-                            <p class="text-sm">Add your first product to get started</p>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                    return;
-                }
+        window.closeProductModal = function() {
+            productModal.classList.remove('open');
+        };
 
-                products.forEach(product => {
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50';
-                    row.setAttribute('data-testid', `row-product-${product.id}`);
-                    row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-testid="text-product-id-${product.id}">#${product.id}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <img src="${product.image}" alt="${product.name}" class="h-16 w-16 object-cover rounded-lg border" data-testid="img-product-${product.id}">
-                        </td>
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs" data-testid="text-product-name-${product.id}">
-                            <div class="truncate" title="${product.name}">${product.name}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-testid="text-product-price-${product.id}">
-                            <span class="font-semibold text-green-600">$${Number(product.price).toFixed(2)}</span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 max-w-xs" data-testid="text-product-description-${product.id}">
-                            <div class="truncate" title="${product.description}">${product.description}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <button onclick="editProduct(${product.id})" class="text-bakery-gold hover:text-yellow-600 p-2 rounded-full hover:bg-yellow-50 transition-colors" data-testid="button-edit-${product.id}" title="Edit Product">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteProductHandler(${product.id})" class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50 transition-colors" data-testid="button-delete-${product.id}" title="Delete Product">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                <button onclick="duplicateProduct(${product.id})" class="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-colors" data-testid="button-duplicate-${product.id}" title="Duplicate Product">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            }
+        productForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const saveButton = document.getElementById('saveProductBtn');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving...';
 
-            // Modal controls
-            const modal = document.getElementById('product-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const submitBtnText = document.getElementById('submit-btn-text');
-            const productForm = document.getElementById('product-form');
-
-            document.getElementById('add-product-btn').addEventListener('click', () => {
-                modalTitle.textContent = 'Add New Product';
-                submitBtnText.textContent = 'Add to Database';
-                productForm.reset();
-                document.getElementById('product-id').value = '';
-                modal.classList.remove('hidden');
-                document.getElementById('product-name').focus();
-            });
-
-            document.getElementById('close-modal').addEventListener('click', () => {
-                modal.classList.add('hidden');
-            });
-
-            document.getElementById('cancel-btn').addEventListener('click', () => {
-                modal.classList.add('hidden');
-            });
-
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
-
-            // Product operations
-            window.editProduct = function(id) {
-                const product = products.find(p => p.id === id);
-                if (!product) return;
-
-                modalTitle.textContent = 'Edit Product';
-                submitBtnText.textContent = 'Update in Database';
-                
-                document.getElementById('product-id').value = product.id;
-                document.getElementById('product-name').value = product.name;
-                document.getElementById('product-price').value = product.price;
-                document.getElementById('product-image').value = product.image;
-                document.getElementById('product-description').value = product.description;
-                
-                modal.classList.remove('hidden');
-                document.getElementById('product-name').focus();
+            const formData = new FormData(productForm);
+            const currentProductId = document.getElementById('productId').value;
+            
+            const productData = {
+                name: formData.get('name'),
+                price: parseFloat(formData.get('price')),
+                unit: formData.get('unit') || null,
+                category: formData.get('category'),
+                description: formData.get('description') || null,
+                image: formData.get('image') || null,
+                in_stock: formData.get('in_stock') === 'on'
             };
 
-            window.deleteProductHandler = async function(id) {
-                const product = products.find(p => p.id === id);
-                if (!product) return;
+            let error;
+            if (currentProductId) {
+                // UPDATE existing product
+                const { error: updateError } = await dbClient
+                    .from('products')
+                    .update(productData)
+                    .eq('id', currentProductId);
+                error = updateError;
+            } else {
+                // INSERT new product
+                const { error: insertError } = await dbClient
+                    .from('products')
+                    .insert([productData]);
+                error = insertError;
+            }
 
-                if (confirm(`Are you sure you want to delete "${product.name}" from the database? This action cannot be undone and will remove it from the public shop.`)) {
-                    await deleteProduct(id);
-                }
-            };
-
-            window.duplicateProduct = async function(id) {
-                const product = products.find(p => p.id === id);
-                if (!product) return;
-
-                const newProduct = { 
-                    name: `${product.name} (Copy)`,
-                    price: product.price,
-                    image: product.image,
-                    description: product.description
-                };
-                
-                await addProduct(newProduct);
-            };
-
-            // Form submission
-            productForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const id = document.getElementById('product-id').value;
-                const name = document.getElementById('product-name').value.trim();
-                const price = parseFloat(document.getElementById('product-price').value);
-                const image = document.getElementById('product-image').value.trim();
-                const description = document.getElementById('product-description').value.trim();
-
-                // Validation
-                if (!name || !image || !description || price <= 0) {
-                    showToast('Please fill all fields with valid data!', 'error');
-                    return;
-                }
-
-                // URL validation
-                try {
-                    new URL(image);
-                } catch {
-                    showToast('Please enter a valid image URL!', 'error');
-                    return;
-                }
-
-                const productData = { name, price, image, description };
-
-                let success = false;
-                if (id) {
-                    success = await updateProduct(parseInt(id), productData);
-                } else {
-                    success = await addProduct(productData);
-                }
-
-                if (success) {
-                    modal.classList.add('hidden');
-                }
-            });
-
-            // Additional features
-            document.getElementById('refresh-btn').addEventListener('click', async () => {
+            if (error) {
+                console.error('Error saving product:', error);
+                showToast(`Error: ${error.message}`, 'error');
+            } else {
+                showToast(currentProductId ? 'Product updated successfully!' : 'Product added successfully!');
                 await fetchProducts();
-            });
-
-            document.getElementById('export-btn').addEventListener('click', () => {
-                const dataStr = JSON.stringify(products, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(dataBlob);
-                link.download = `bakery-products-${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-                
-                showToast('Products exported successfully!');
-            });
-
-            // Initialize
-            function init() {
-                // Show login screen
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('admin-dashboard').classList.add('hidden');
-                
-                showToast('Admin panel ready! Database integration active.');
+                window.closeProductModal();
             }
 
-            init();
-        })();
+            saveButton.disabled = false;
+            saveButton.textContent = 'Save Product';
+        });
+
+        // --- EDIT AND DELETE HANDLERS ---
+        function handleEditProduct(id) {
+            const product = currentProducts.find(p => p.id == id);
+            if (!product) {
+                showToast('Product not found.', 'error');
+                return;
+            }
+            
+            document.getElementById('productModalTitle').textContent = 'Edit Product';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productUnit').value = product.unit || '';
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productImage').value = product.image || '';
+            document.getElementById('productInStock').checked = product.in_stock;
+            productModal.classList.add('open');
+        }
+
+        async function handleDeleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) {
+                return;
+            }
+            const { error } = await dbClient.from('products').delete().eq('id', id);
+            if (error) {
+                console.error('Error deleting product:', error);
+                showToast(`Error: ${error.message}`, 'error');
+            } else {
+                showToast('Product deleted successfully!');
+                await fetchProducts();
+            }
+        }
+
+        // --- TAB SWITCHING LOGIC ---
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTabId = tab.dataset.tab;
+                navTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                tabContents.forEach(content => {
+                    content.classList.toggle('active', content.id === `${targetTabId}Tab`);
+                });
+            });
+        });
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProducts(); 
+            
+            // Event delegation for edit and delete buttons
+            productsTableBody.addEventListener('click', (event) => {
+                const target = event.target.closest('button');
+                if (!target) return;
+                
+                const id = target.dataset.id;
+                if (target.classList.contains('edit')) {
+                    handleEditProduct(id);
+                } else if (target.classList.contains('delete')) {
+                    handleDeleteProduct(id);
+                }
+            });
+            
+            // Modal close events
+            document.querySelector('#productModal .modal-overlay').addEventListener('click', window.closeProductModal);
+
+            // Settings save buttons
+            document.getElementById('saveWhatsappBtn').addEventListener('click', () => {
+                showToast('WhatsApp number saved successfully!');
+            });
+            document.getElementById('saveStoreBtn').addEventListener('click', () => {
+                showToast('Store information saved successfully!');
+            });
+        });
     </script>
 </body>
 </html>

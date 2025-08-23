@@ -3,53 +3,667 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Umair Bakers & General Store - Fresh Baked Daily</title>
-    <meta name="description" content="Discover fresh breads, pastries, and general store essentials at Umair Bakers. Made with love, served with care. Shop online for delivery.">
-    <meta property="og:title" content="Umair Bakers & General Store">
-    <meta property="og:description" content="Fresh baked goods delivered to your door. Premium breads, pastries, and more.">
+    <title>Umair Bakers & general Store - Fresh Baked Goods & Quality Products</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Umair Bakers & general Store offers fresh baked goods, groceries, and quality products. Order online for home delivery in Pakistan.">
+    <meta name="keywords" content="bakery, general store, fresh bread, groceries, Pakistan, online shopping">
+    <meta name="author" content="Umair Bakers & general Store">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Umair Bakers & general Store">
+    <meta property="og:description" content="Fresh baked goods and quality products delivered to your door">
     <meta property="og:type" content="website">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bakery: {
-                            cream: '#FEF7ED',
-                            gold: '#F59E0B',
-                            brown: '#92400E',
-                            beige: '#FEF3C7'
-                        }
-                    }
-                }
-            }
-        };
-    </script>
-</head>
-<body class="bg-bakery-cream">
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out" data-testid="toast-notification">
-        <span id="toast-message" data-testid="toast-message">Success!</span>
-    </div>
+    <meta property="og:url" content="https://umairbakers.com">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            background: #0f766e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f766e;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 10px 40px 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .cart-btn {
+            position: relative;
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-btn {
+            background: white;
+            color: #0f766e;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Filters */
+        .filters {
+            background: #f9fafb;
+            padding: 2rem 0;
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            background: #0f766e;
+            color: white;
+            border-color: #0f766e;
+        }
+
+        /* Products */
+        .products {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .product-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f766e;
+            margin-bottom: 1rem;
+        }
+
+        .product-unit {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 400;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #0d5a54;
+        }
+
+        /* Cart Drawer */
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 400px;
+            background: white;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-drawer.open {
+            transform: translateX(0);
+        }
+
+        .cart-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .cart-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .cart-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .cart-item-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 10px;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .cart-item-price {
+            color: #0f766e;
+            font-weight: 600;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cart-item-quantity {
+            width: 60px;
+            padding: 0.25rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .cart-item-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .cart-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .cart-total {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .checkout-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .checkout-form {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .order-summary {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-row {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 0.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1003;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #10b981;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-section p {
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-btn {
+            background: #374151;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cart-drawer {
+                width: 100%;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .search-input {
+                width: 200px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b-2 border-bakery-gold">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <i class="fas fa-bread-slice text-bakery-gold text-2xl mr-3"></i>
-                    <h1 class="text-xl font-bold text-bakery-brown">Umair Bakers & General Store</h1>
+    <header class="header sticky">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-img">UB</div>
+                    <span class="logo-text">Umair Bakers</span>
                 </div>
                 
-                <div class="flex items-center space-x-4">
-                    <a href="admin.html" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors" data-testid="link-admin">
-                        <i class="fas fa-user-shield mr-2"></i>Admin
-                    </a>
-                    <button id="cart-btn" class="relative bg-bakery-gold text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-cart">
-                        <i class="fas fa-shopping-cart mr-2"></i>
-                        Cart (<span id="cart-count" data-testid="text-cart-count">0</span>)
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="search" id="searchInput" placeholder="Search products..." class="search-input" aria-label="Search products">
+                        <button class="search-btn" aria-label="Search">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <button class="cart-btn" id="cartBtn" aria-label="Shopping cart">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
+                            <path d="M20 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <span class="cart-count" id="cartCount">0</span>
                     </button>
                 </div>
             </div>
@@ -57,593 +671,402 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-bakery-beige to-bakery-cream py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl font-bold text-bakery-brown mb-4">Fresh Baked Daily</h2>
-            <p class="text-lg text-gray-700 max-w-2xl mx-auto">Discover our delicious selection of fresh breads, pastries, and general store essentials. Made with love, served with care.</p>
-        </div>
-    </section>
-
-    <!-- Products Section -->
-    <section class="py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 class="text-2xl font-bold text-bakery-brown mb-8">Our Products</h3>
-            
-            <!-- Product Grid -->
-            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" data-testid="products-grid">
-                <!-- Products will be dynamically loaded here -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Fresh Baked Daily</h1>
+                <p class="hero-subtitle">Quality products from our family bakery and general store, delivered fresh to your doorstep</p>
+                <button class="cta-btn" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">
+                    Shop Now
+                </button>
             </div>
         </div>
     </section>
 
-    <!-- Cart Modal -->
-    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-testid="cart-modal">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full max-h-96 overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-bakery-brown">Shopping Cart</h3>
-                        <button id="close-cart" class="text-gray-500 hover:text-gray-700" data-testid="button-close-cart">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    
-                    <div id="cart-items" class="space-y-4 mb-6" data-testid="cart-items">
-                        <!-- Cart items will be dynamically added here -->
-                    </div>
-                    
-                    <div class="border-t pt-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-lg font-bold">Total: $<span id="cart-total" data-testid="text-cart-total">0.00</span></span>
-                        </div>
-                        <button id="checkout-btn" class="w-full bg-bakery-gold text-white py-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-checkout">
-                            <i class="fab fa-whatsapp mr-2"></i>Checkout via WhatsApp
-                        </button>
-                    </div>
+    <!-- Filters -->
+    <section class="filters" id="filters">
+        <div class="container">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-category="all">All Products</button>
+                <button class="filter-tab" data-category="bakery">Bakery</button>
+                <button class="filter-tab" data-category="groceries">Groceries</button>
+                <button class="filter-tab" data-category="beverages">Beverages</button>
+                <button class="filter-tab" data-category="snacks">Snacks</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products -->
+    <section class="products" id="products">
+        <div class="container">
+            <h2 class="section-title">Our Products</h2>
+            <div class="products-grid" id="productsGrid">
+                <div class="loading">Loading products...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Drawer -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-overlay" id="cartOverlay"></div>
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>Shopping Cart</h3>
+                <button class="cart-close" id="cartClose" aria-label="Close cart">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">
+                    <p>Your cart is empty</p>
                 </div>
+            </div>
+            
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <strong>Total: PKR <span id="cartTotal">0</span></strong>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn" disabled>Checkout</button>
             </div>
         </div>
     </div>
 
     <!-- Checkout Modal -->
-    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-testid="checkout-modal">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-bakery-brown">Checkout Details</h3>
-                        <button id="close-checkout" class="text-gray-500 hover:text-gray-700" data-testid="button-close-checkout">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    
-                    <form id="checkout-form" class="space-y-4" data-testid="form-checkout">
-                        <div>
-                            <label for="customer-name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                            <input type="text" id="customer-name" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                   placeholder="Enter your name" data-testid="input-customer-name">
-                        </div>
-                        
-                        <div>
-                            <label for="customer-phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                            <input type="tel" id="customer-phone" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                   placeholder="Enter your phone" data-testid="input-customer-phone">
-                        </div>
-                        
-                        <div>
-                            <label for="customer-address" class="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
-                            <textarea id="customer-address" required rows="3"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                      placeholder="Enter your address" data-testid="input-customer-address"></textarea>
-                        </div>
-                        
-                        <div>
-                            <label for="customer-note" class="block text-sm font-medium text-gray-700 mb-1">Special Instructions (Optional)</label>
-                            <textarea id="customer-note" rows="2"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bakery-gold" 
-                                      placeholder="Any special requests..." data-testid="input-customer-note"></textarea>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <div class="text-lg font-bold mb-4">Order Total: $<span id="checkout-total" data-testid="text-checkout-total">0.00</span></div>
-                            <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors" data-testid="button-send-whatsapp">
-                                <i class="fab fa-whatsapp mr-2"></i>Send Order via WhatsApp
-                            </button>
-                        </div>
-                    </form>
-                </div>
+    <div class="modal" id="checkoutModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Checkout</h3>
+                <button class="modal-close" id="checkoutClose" aria-label="Close checkout">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
+            
+            <form id="checkoutForm" class="checkout-form">
+                <div class="form-group">
+                    <label for="customerName">Full Name *</label>
+                    <input type="text" id="customerName" name="customerName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customerPhone">Phone Number *</label>
+                    <input type="tel" id="customerPhone" name="customerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customerAddress">Delivery Address *</label>
+                    <textarea id="customerAddress" name="customerAddress" rows="3" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="orderNote">Special Instructions (Optional)</label>
+                    <textarea id="orderNote" name="orderNote" rows="2"></textarea>
+                </div>
+                
+                <div class="order-summary">
+                    <h4>Order Summary</h4>
+                    <div id="checkoutItems"></div>
+                    <div class="total-row">
+                        <strong>Total: PKR <span id="checkoutTotal">0</span></strong>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitOrder">Place Order</button>
+            </form>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script>
-        (function() {
-            // Supabase configuration
-            const supabaseUrl = 'https://gsdmikfgxrbgwlkoudrq.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZG1pa2ZneHJiZ3dsa291ZHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NzczOTUsImV4cCI6MjA3MTQ1MzM5NX0.vf2jfXD2MbkO4hzpLPVUHpf-mETWcMT0kNnWtRH3e0c';
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Umair Bakers & general Store</h4>
+                    <p>Fresh baked goods and quality products since day one.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Phone: +92 333 249 1993</p>
+                    <p>WhatsApp: +92 333 249 1993</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Hours</h4>
+                    <p>Daily: 8:00 AM - 10:00 PM</p>
+                </div>
+            </div>
             
-            // Initialize Supabase client
-            let supabaseClient = null;
-            let products = [];
-            let cart = JSON.parse(localStorage.getItem('bakery_cart')) || [];
+            <div class="footer-bottom">
+                <p>&copy; 2024 Umair Bakers & general Store. All rights reserved.</p>
+                <div class="admin-access">
+                    <a href="admin.html" class="admin-btn">Admin</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-            // Default products (fallback)
-            const defaultProducts = [
-                {
-                    id: 1,
-                    name: "Fresh White Bread",
-                    price: 2.99,
-                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Soft and fluffy white bread, baked fresh daily"
-                },
-                {
-                    id: 2,
-                    name: "Chocolate Croissant",
-                    price: 3.49,
-                    image: "https://images.unsplash.com/photo-1555507036-ab794f4eed25?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Buttery croissant filled with rich chocolate"
-                },
-                {
-                    id: 3,
-                    name: "Blueberry Muffin",
-                    price: 2.49,
-                    image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Moist muffin packed with fresh blueberries"
-                },
-                {
-                    id: 4,
-                    name: "Sourdough Loaf",
-                    price: 4.99,
-                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Artisan sourdough with perfect crust and texture"
-                },
-                {
-                    id: 5,
-                    name: "Apple Pie",
-                    price: 12.99,
-                    image: "https://images.unsplash.com/photo-1621743478914-cc8a86d7e9b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Classic apple pie with flaky crust"
-                },
-                {
-                    id: 6,
-                    name: "Cinnamon Roll",
-                    price: 3.99,
-                    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                    description: "Sweet and gooey cinnamon roll with glaze"
-                }
-            ];
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script type="module">
+        // --- SUPABASE SETUP ---
+        const SUPABASE_URL = 'https://gsdmikfgxrbgwlkoudrq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZG1pa2ZneHJiZ3dsa291ZHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NzczOTUsImV4cCI6MjA3MTQ1MzM5NX0.vf2jfXD2MbkO4hzpLPVUHpf-mETWcMT0kNnWtRH3e0c';
+        
+        const { createClient } = supabase;
+        const dbClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            // Initialize Supabase
-            function initSupabase() {
-                try {
-                    if (typeof window.supabase !== 'undefined') {
-                        supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-                        console.log('Supabase client initialized');
-                        return true;
-                    }
-                } catch (error) {
-                    console.error('Supabase initialization error:', error);
-                }
-                return false;
+        // --- GLOBAL STATE ---
+        let allProducts = [];
+        let cart = [];
+
+        // --- DOM ELEMENTS ---
+        const productsGrid = document.getElementById('productsGrid');
+        const cartDrawer = document.getElementById('cartDrawer');
+        const cartBtn = document.getElementById('cartBtn');
+        const cartClose = document.getElementById('cartClose');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const cartItemsContainer = document.getElementById('cartItems');
+        const cartCount = document.getElementById('cartCount');
+        const cartTotal = document.getElementById('cartTotal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const checkoutModal = document.getElementById('checkoutModal');
+        const checkoutClose = document.getElementById('checkoutClose');
+        const checkoutForm = document.getElementById('checkoutForm');
+        const toastContainer = document.getElementById('toastContainer');
+        
+        // --- TOAST NOTIFICATION ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
+        // --- PRODUCT FETCHING AND RENDERING ---
+        async function fetchProducts() {
+            productsGrid.innerHTML = '<div class="loading">Loading products...</div>';
+            const { data, error } = await dbClient
+                .from('products')
+                .select('*')
+                .eq('in_stock', true)
+                .order('name', { ascending: true });
+
+            if (error) {
+                console.error('Error fetching products:', error);
+                productsGrid.innerHTML = '<div class="loading">Error loading products. Please try again later.</div>';
+                showToast('Could not fetch products.', 'error');
+                return;
             }
+            allProducts = data;
+            renderProducts(allProducts);
+        }
 
-            // Database operations
-            async function fetchProducts() {
-                try {
-                    if (!supabaseClient) {
-                        throw new Error('Supabase not initialized');
-                    }
-
-                    const { data, error } = await supabaseClient
-                        .from('products')
-                        .select('*')
-                        .order('id', { ascending: true });
-
-                    if (error) {
-                        throw error;
-                    }
-
-                    products = data || [];
-                    if (products.length === 0) {
-                        await initializeDefaultProducts();
-                    }
-                    
-                    console.log(`Loaded ${products.length} products from database`);
-                    showToast(`Loaded ${products.length} products from live database!`);
-                    
-                } catch (error) {
-                    console.error('Error fetching products:', error);
-                    products = defaultProducts;
-                    showToast('Using offline products - Database connection failed', 'error');
-                }
-                
-                renderProducts();
+        function renderProducts(products) {
+            productsGrid.innerHTML = '';
+            if (products.length === 0) {
+                productsGrid.innerHTML = '<div class="loading">No products found.</div>';
+                return;
             }
-
-            async function initializeDefaultProducts() {
-                if (!supabaseClient) return;
-                
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('products')
-                        .insert(defaultProducts.map(p => ({ name: p.name, price: p.price, image: p.image, description: p.description })))
-                        .select();
-
-                    if (!error && data) {
-                        products = data;
-                        showToast('Database initialized with default products!');
-                    }
-                } catch (error) {
-                    console.error('Error initializing products:', error);
-                }
-            }
-
-            // Real-time subscription
-            function setupRealtimeSubscription() {
-                if (!supabaseClient) return;
-                
-                try {
-                    const subscription = supabaseClient
-                        .channel('products')
-                        .on('postgres_changes', 
-                            { event: '*', schema: 'public', table: 'products' },
-                            (payload) => {
-                                console.log('Real-time update:', payload);
-                                fetchProducts();
-                            }
-                        )
-                        .subscribe();
-
-                    console.log('Real-time subscription setup');
-                    return subscription;
-                } catch (error) {
-                    console.error('Real-time subscription error:', error);
-                }
-            }
-
-            // UI functions
-            function showToast(message, type = 'success') {
-                const toast = document.getElementById('toast');
-                const toastMessage = document.getElementById('toast-message');
-                
-                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
-                toastMessage.textContent = message;
-                
-                toast.classList.remove('translate-x-full');
-                toast.classList.add('translate-x-0');
-                
-                setTimeout(() => {
-                    toast.classList.remove('translate-x-0');
-                    toast.classList.add('translate-x-full');
-                }, 3000);
-            }
-
-            // Share functionality
-            function getShortLink(productId) {
-                return `https://umairbakers.page.link/${productId}`;
-            }
-
-            async function shareProduct(product) {
-                const url = getShortLink(product.id);
-                const text = `Check out ${product.name} at Umair Bakers & General Store!`;
-
-                if (navigator.share) {
-                    try {
-                        await navigator.share({ 
-                            title: product.name, 
-                            text: text, 
-                            url: url 
-                        });
-                    } catch (error) {
-                        console.log('Share cancelled');
-                    }
-                } else {
-                    try {
-                        await navigator.clipboard.writeText(url);
-                        showToast("Link copied to clipboard!");
-                    } catch (error) {
-                        fallbackCopyToClipboard(url);
-                        showToast("Link copied!");
-                    }
-                }
-            }
-
-            function fallbackCopyToClipboard(text) {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            }
-
-            function shareToWhatsApp(product) {
-                const url = getShortLink(product.id);
-                const text = `Check this product: ${url}`;
-                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-                window.open(whatsappUrl, '_blank');
-            }
-
-            // Cart management
-            function addToCart(product) {
-                const existingItem = cart.find(item => item.id === product.id);
-                
-                if (existingItem) {
-                    existingItem.quantity += 1;
-                } else {
-                    cart.push({ ...product, quantity: 1 });
-                }
-                
-                localStorage.setItem('bakery_cart', JSON.stringify(cart));
-                updateCartCount();
-                showToast(`${product.name} added to cart!`);
-            }
-
-            function removeFromCart(productId) {
-                cart = cart.filter(item => item.id !== productId);
-                localStorage.setItem('bakery_cart', JSON.stringify(cart));
-                updateCartCount();
-                renderCartItems();
-            }
-
-            function updateCartCount() {
-                const cartCount = document.getElementById('cart-count');
-                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-                cartCount.textContent = totalItems;
-            }
-
-            // Render products
-            function renderProducts() {
-                const productsGrid = document.getElementById('products-grid');
-                productsGrid.innerHTML = '';
-
-                if (products.length === 0) {
-                    productsGrid.innerHTML = `
-                        <div class="col-span-full text-center py-12">
-                            <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
-                            <h3 class="text-xl font-semibold text-gray-600 mb-2">No products available</h3>
-                            <p class="text-gray-500">Products will appear here once they are added.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                products.forEach(product => {
-                    const productCard = document.createElement('div');
-                    productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow';
-                    productCard.setAttribute('data-testid', `card-product-${product.id}`);
-                    
-                    productCard.innerHTML = `
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover" data-testid="img-product-${product.id}">
-                        <div class="p-4">
-                            <h4 class="text-lg font-semibold text-bakery-brown mb-2" data-testid="text-product-name-${product.id}">${product.name}</h4>
-                            <p class="text-gray-600 text-sm mb-3" data-testid="text-product-description-${product.id}">${product.description}</p>
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-xl font-bold text-bakery-gold" data-testid="text-product-price-${product.id}">$${Number(product.price).toFixed(2)}</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="addToCartHandler(${product.id})" class="flex-1 bg-bakery-brown text-white py-2 rounded-lg hover:bg-yellow-800 transition-colors" data-testid="button-add-cart-${product.id}">
-                                    <i class="fas fa-cart-plus mr-2"></i>Add to Cart
-                                </button>
-                                <div class="relative">
-                                    <button onclick="toggleShareMenu(${product.id})" class="bg-bakery-gold text-white p-2 rounded-lg hover:bg-yellow-600 transition-colors" data-testid="button-share-${product.id}">
-                                        <i class="fas fa-share-alt"></i>
-                                    </button>
-                                    <div id="share-menu-${product.id}" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border hidden z-10" data-testid="menu-share-${product.id}">
-                                        <button onclick="shareProductHandler(${product.id})" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-lg" data-testid="button-share-link-${product.id}">
-                                            <i class="fas fa-share mr-2 text-bakery-gold"></i>Share
-                                        </button>
-                                        <button onclick="shareToWhatsAppHandler(${product.id})" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-lg" data-testid="button-share-whatsapp-${product.id}">
-                                            <i class="fab fa-whatsapp mr-2 text-green-500"></i>WhatsApp
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    productsGrid.appendChild(productCard);
-                });
-            }
-
-            // Share menu toggle
-            function toggleShareMenu(productId) {
-                const menu = document.getElementById(`share-menu-${productId}`);
-                const isHidden = menu.classList.contains('hidden');
-                
-                // Close all other menus
-                document.querySelectorAll('[id^="share-menu-"]').forEach(m => m.classList.add('hidden'));
-                
-                if (isHidden) {
-                    menu.classList.remove('hidden');
-                } else {
-                    menu.classList.add('hidden');
-                }
-            }
-
-            // Event handlers
-            window.addToCartHandler = function(productId) {
-                const product = products.find(p => p.id === productId);
-                if (product) addToCart(product);
-            };
-
-            window.shareProductHandler = function(productId) {
-                const product = products.find(p => p.id === productId);
-                if (product) {
-                    shareProduct(product);
-                    document.getElementById(`share-menu-${productId}`).classList.add('hidden');
-                }
-            };
-
-            window.shareToWhatsAppHandler = function(productId) {
-                const product = products.find(p => p.id === productId);
-                if (product) {
-                    shareToWhatsApp(product);
-                    document.getElementById(`share-menu-${productId}`).classList.add('hidden');
-                }
-            };
-
-            window.toggleShareMenu = toggleShareMenu;
-
-            // Render cart items
-            function renderCartItems() {
-                const cartItems = document.getElementById('cart-items');
-                const cartTotal = document.getElementById('cart-total');
-                
-                if (cart.length === 0) {
-                    cartItems.innerHTML = '<p class="text-gray-500 text-center py-4" data-testid="text-cart-empty">Your cart is empty</p>';
-                    cartTotal.textContent = '0.00';
-                    return;
-                }
-
-                cartItems.innerHTML = '';
-                let total = 0;
-
-                cart.forEach(item => {
-                    total += item.price * item.quantity;
-                    
-                    const cartItem = document.createElement('div');
-                    cartItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
-                    cartItem.setAttribute('data-testid', `cart-item-${item.id}`);
-                    cartItem.innerHTML = `
-                        <div>
-                            <h5 class="font-semibold" data-testid="text-cart-item-name-${item.id}">${item.name}</h5>
-                            <p class="text-sm text-gray-600" data-testid="text-cart-item-details-${item.id}">$${Number(item.price).toFixed(2)} × ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}</p>
-                        </div>
-                        <button onclick="removeFromCartHandler(${item.id})" class="text-red-500 hover:text-red-700" data-testid="button-remove-cart-${item.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    `;
-                    cartItems.appendChild(cartItem);
-                });
-
-                cartTotal.textContent = total.toFixed(2);
-            }
-
-            window.removeFromCartHandler = function(productId) {
-                removeFromCart(productId);
-            };
-
-            // WhatsApp checkout
-            function processCheckout() {
-                if (cart.length === 0) {
-                    showToast('Your cart is empty!', 'error');
-                    return;
-                }
-
-                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                document.getElementById('checkout-total').textContent = total.toFixed(2);
-                document.getElementById('cart-modal').classList.add('hidden');
-                document.getElementById('checkout-modal').classList.remove('hidden');
-            }
-
-            function sendWhatsAppOrder() {
-                const name = document.getElementById('customer-name').value;
-                const phone = document.getElementById('customer-phone').value;
-                const address = document.getElementById('customer-address').value;
-                const note = document.getElementById('customer-note').value;
-
-                if (!name || !phone || !address) {
-                    showToast('Please fill in all required fields!', 'error');
-                    return;
-                }
-
-                let orderText = `🛒 *New Order from ${name}*\n\n`;
-                orderText += `📱 Phone: ${phone}\n`;
-                orderText += `📍 Address: ${address}\n`;
-                if (note) orderText += `📝 Note: ${note}\n`;
-                orderText += `\n*Order Details:*\n`;
-
-                let total = 0;
-                cart.forEach(item => {
-                    const itemTotal = item.price * item.quantity;
-                    total += itemTotal;
-                    orderText += `• ${item.name} x${item.quantity} = $${itemTotal.toFixed(2)}\n`;
-                });
-
-                orderText += `\n💰 *Total: $${total.toFixed(2)}*`;
-
-                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(orderText)}`;
-                window.open(whatsappUrl, '_blank');
-
-                // Clear cart and close modal
-                cart = [];
-                localStorage.setItem('bakery_cart', JSON.stringify(cart));
-                updateCartCount();
-                document.getElementById('checkout-modal').classList.add('hidden');
-                document.getElementById('checkout-form').reset();
-                showToast('Order sent via WhatsApp!');
-            }
-
-            // Modal controls
-            document.getElementById('cart-btn').addEventListener('click', () => {
-                document.getElementById('cart-modal').classList.remove('hidden');
-                renderCartItems();
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.dataset.category = product.category;
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.image || ''}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'cart-item-img\\'>No Image</div>'">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
+                        <p class="product-price">PKR ${product.price} ${product.unit ? `<span class="product-unit">/ ${product.unit}</span>` : ''}</p>
+                        <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+                    </div>
+                `;
+                productsGrid.appendChild(productCard);
             });
+        }
 
-            document.getElementById('close-cart').addEventListener('click', () => {
-                document.getElementById('cart-modal').classList.add('hidden');
-            });
+        // --- CART LOGIC ---
+        function toggleCart() {
+            cartDrawer.classList.toggle('open');
+            cartOverlay.classList.toggle('open');
+        }
 
-            document.getElementById('checkout-btn').addEventListener('click', processCheckout);
+        function addToCart(productId) {
+            const product = allProducts.find(p => p.id === parseInt(productId));
+            if (!product) return;
 
-            document.getElementById('close-checkout').addEventListener('click', () => {
-                document.getElementById('checkout-modal').classList.add('hidden');
-            });
-
-            document.getElementById('checkout-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                sendWhatsAppOrder();
-            });
-
-            // Close modals when clicking outside
-            document.getElementById('cart-modal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('cart-modal')) {
-                    document.getElementById('cart-modal').classList.add('hidden');
-                }
-            });
-
-            document.getElementById('checkout-modal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('checkout-modal')) {
-                    document.getElementById('checkout-modal').classList.add('hidden');
-                }
-            });
-
-            // Close share menus when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('[id^="share-menu-"]') && !e.target.closest('button[onclick^="toggleShareMenu"]')) {
-                    document.querySelectorAll('[id^="share-menu-"]').forEach(m => m.classList.add('hidden'));
-                }
-            });
-
-            // Initialize app
-            async function init() {
-                updateCartCount();
-                
-                // Initialize Supabase and load products
-                const supabaseInitialized = initSupabase();
-                if (supabaseInitialized) {
-                    await fetchProducts();
-                    setupRealtimeSubscription();
-                    showToast('Shop connected to live database!');
-                } else {
-                    // Fallback to default products
-                    products = defaultProducts;
-                    renderProducts();
-                    showToast('Shop loaded with demo products!');
-                }
-            }
-
-            // Start the app when page loads
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
+            const existingItem = cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.quantity++;
             } else {
-                init();
+                cart.push({ ...product, quantity: 1 });
             }
-        })();
+            showToast(`${product.name} added to cart!`);
+            updateCart();
+        }
+
+        function updateCart() {
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<div class="empty-cart"><p>Your cart is empty</p></div>';
+            } else {
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-img">${item.image ? `<img src="${item.image}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentElement.innerHTML='No Image'">` : 'No Image'}</div>
+                        <div class="cart-item-details">
+                            <p class="cart-item-title">${item.name}</p>
+                            <p class="cart-item-price">PKR ${item.price}</p>
+                        </div>
+                        <div class="cart-item-actions">
+                            <input type="number" value="${item.quantity}" min="1" class="cart-item-quantity" data-id="${item.id}">
+                            <button class="cart-item-remove" data-id="${item.id}">&times;</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            const total = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+            cartTotal.textContent = total.toFixed(2);
+            cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            checkoutBtn.disabled = cart.length === 0;
+        }
+
+        function handleCartActions(event) {
+            const target = event.target;
+            const productId = target.dataset.id;
+            if (target.classList.contains('cart-item-remove')) {
+                cart = cart.filter(item => item.id !== parseInt(productId));
+                updateCart();
+            } else if (target.classList.contains('cart-item-quantity')) {
+                const quantity = parseInt(target.value);
+                const item = cart.find(i => i.id === parseInt(productId));
+                if (item && quantity > 0) {
+                    item.quantity = quantity;
+                    updateCart();
+                }
+            }
+        }
+        
+        // --- CHECKOUT LOGIC ---
+        function openCheckoutModal() {
+            document.getElementById('checkoutItems').innerHTML = cart.map(item => `
+                <div class="summary-item">
+                    <span>${item.name} (x${item.quantity})</span>
+                    <span>PKR ${(Number(item.price) * item.quantity).toFixed(2)}</span>
+                </div>
+            `).join('');
+            document.getElementById('checkoutTotal').textContent = cartTotal.textContent;
+            checkoutModal.classList.add('open');
+        }
+
+        function closeCheckoutModal() {
+            checkoutModal.classList.remove('open');
+        }
+        
+        async function handleOrderSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('submitOrder');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Placing Order...';
+
+            const formData = new FormData(checkoutForm);
+            
+            // Since orders table may not exist, we'll send via WhatsApp only
+            const whatsappNumber = '923332491993';
+            const itemsList = cart.map(item => 
+                `${item.name} x${item.quantity} - PKR ${(Number(item.price) * item.quantity).toFixed(2)}`
+            ).join('\n');
+            
+            const message = `New Order
+
+Customer: ${formData.get('customerName')}
+Phone: ${formData.get('customerPhone')}
+Address: ${formData.get('customerAddress')}
+
+Items:
+${itemsList}
+
+Total: PKR ${parseFloat(cartTotal.textContent).toFixed(2)}
+
+${formData.get('orderNote') ? `Special Instructions: ${formData.get('orderNote')}` : ''}`;
+
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+
+            showToast('Order sent via WhatsApp! We will contact you shortly.');
+            cart = [];
+            updateCart();
+            closeCheckoutModal();
+            checkoutForm.reset();
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Place Order';
+        }
+        
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProducts();
+            
+            // Cart toggling
+            cartBtn.addEventListener('click', toggleCart);
+            cartClose.addEventListener('click', toggleCart);
+            cartOverlay.addEventListener('click', toggleCart);
+
+            // Add to cart
+            productsGrid.addEventListener('click', (event) => {
+                if (event.target.classList.contains('add-to-cart-btn')) {
+                    addToCart(event.target.dataset.id);
+                }
+            });
+
+            // Update quantities and remove items
+            cartItemsContainer.addEventListener('change', handleCartActions);
+            cartItemsContainer.addEventListener('click', handleCartActions);
+
+            // Checkout
+            checkoutBtn.addEventListener('click', openCheckoutModal);
+            checkoutClose.addEventListener('click', closeCheckoutModal);
+            checkoutModal.querySelector('.modal-overlay').addEventListener('click', closeCheckoutModal);
+            checkoutForm.addEventListener('submit', handleOrderSubmit);
+
+            // Filtering
+            document.querySelector('.filter-tabs').addEventListener('click', (event) => {
+                if (event.target.tagName === 'BUTTON') {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    event.target.classList.add('active');
+                    const category = event.target.dataset.category;
+                    const filtered = (category === 'all') ? allProducts : allProducts.filter(p => p.category === category);
+                    renderProducts(filtered);
+                }
+            });
+            
+            // Search
+            document.getElementById('searchInput').addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                const filtered = allProducts.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    (p.description && p.description.toLowerCase().includes(searchTerm))
+                );
+                renderProducts(filtered);
+            });
+        });
     </script>
 </body>
 </html>
