@@ -274,10 +274,13 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .modal.open {
             display: flex;
+            opacity: 1;
         }
 
         .modal-overlay {
@@ -294,6 +297,12 @@
             overflow-y: auto;
             position: relative;
             z-index: 1001;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.open .modal-content {
+            transform: scale(1);
         }
 
         .modal-content.large {
@@ -361,6 +370,18 @@
             box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
         }
 
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: #ef4444;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
         .checkbox-label {
             display: flex;
             align-items: center;
@@ -399,6 +420,99 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Image Upload Styles */
+        .image-upload-container {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: #f9fafb;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .image-upload-container:hover {
+            border-color: #0f766e;
+            background: #f0fdfa;
+        }
+
+        .image-upload-container.dragover {
+            border-color: #0f766e;
+            background: #f0fdfa;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            background: #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #6b7280;
+        }
+
+        .upload-text {
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .image-preview-container {
+            display: none;
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .image-actions {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .image-action-btn {
+            padding: 0.25rem 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-remove {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-change {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .file-input {
+            display: none;
         }
 
         /* Settings */
@@ -464,8 +578,9 @@
             color: white;
             font-weight: 600;
             transform: translateX(100%);
-            transition: transform 0.3s;
+            transition: transform 0.3s ease;
             z-index: 1002;
+            max-width: 300px;
         }
 
         .toast.show {
@@ -486,7 +601,18 @@
             color: #6b7280;
         }
 
-        /* Barcode Scanner Styles */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        /* Barcode Input Styles */
         .barcode-input-container {
             display: flex;
             gap: 0.5rem;
@@ -497,78 +623,45 @@
             flex: 1;
         }
 
-        .scan-btn {
+        .scan-btn, .fetch-btn {
             background: #0f766e;
             color: white;
             border: none;
             padding: 12px 16px;
-            border-radius: 6px;
+            border-radius: 8px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             white-space: nowrap;
         }
 
-        .scan-btn:hover {
+        .scan-btn:hover, .fetch-btn:hover {
             background: #0d5a54;
         }
 
-        .barcode-scanner {
-            margin-top: 1rem;
-            border: 2px dashed #d1d5db;
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
+        .fetch-btn {
+            background: #3b82f6;
         }
 
-        .barcode-video {
-            width: 100%;
-            max-width: 400px;
-            height: 300px;
-            border-radius: 8px;
-            background: #000;
-            margin-bottom: 1rem;
+        .fetch-btn:hover {
+            background: #2563eb;
         }
 
-        .scanner-controls {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        .btn-scanner {
-            background: #374151;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.875rem;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .btn-scanner:hover {
-            background: #4b5563;
-        }
-
-        .scanner-overlay {
-            position: relative;
-        }
-
-        .scanner-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #ef4444;
-            animation: scanner-line 2s infinite;
-        }
-
-        @keyframes scanner-line {
-            0%, 100% { transform: translateY(-150px); }
-            50% { transform: translateY(150px); }
-        }
-
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
             .admin-header-content {
                 padding: 1rem;
@@ -587,8 +680,8 @@
 
             .tab-header {
                 flex-direction: column;
-                gap: 1rem;
                 align-items: flex-start;
+                gap: 1rem;
             }
 
             .form-row {
@@ -602,30 +695,35 @@
             .sales-summary {
                 grid-template-columns: 1fr;
             }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Admin Header -->
+    <!-- Header -->
     <header class="admin-header">
         <div class="admin-header-content">
             <div class="admin-logo">
-                <div class="logo-img">U</div>
-                <span>Admin Panel</span>
+                <div class="logo-img">UB</div>
+                <span>Umair Bakers & general Store</span>
             </div>
             <div class="admin-actions">
-                <span class="admin-user">Welcome, Admin</span>
+                <span class="admin-user">Admin Panel</span>
                 <a href="index.html" class="back-link">← Back to Store</a>
             </div>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
+    <!-- Navigation -->
     <nav class="admin-nav">
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showTab('products')">Products</button>
-            <button class="nav-tab" onclick="showTab('orders')">Orders</button>
-            <button class="nav-tab" onclick="showTab('settings')">Settings</button>
+            <button class="nav-tab active" data-tab="products">Products</button>
+            <button class="nav-tab" data-tab="orders">Orders</button>
+            <button class="nav-tab" data-tab="settings">Settings</button>
         </div>
     </nav>
 
@@ -633,27 +731,27 @@
     <div id="products" class="tab-content active">
         <div class="tab-header">
             <h2>Product Management</h2>
-            <button class="add-btn" onclick="openProductModal()">
-                <span>+</span> Add New Product
+            <button class="add-btn" id="addProductBtn">
+                <span>+</span>
+                Add Product
             </button>
         </div>
 
-        <div class="admin-table" id="products-table">
-            <table>
+        <div class="admin-table-container">
+            <table class="admin-table" id="productsTable">
                 <thead>
                     <tr>
                         <th>Image</th>
                         <th>Name</th>
                         <th>Category</th>
                         <th>Price</th>
-                        <th>Unit</th>
                         <th>Stock</th>
                         <th>Barcode</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="products-tbody">
-                    <!-- Products will be loaded here -->
+                <tbody id="productsTableBody">
+                    <!-- Products will be populated here -->
                 </tbody>
             </table>
         </div>
@@ -668,28 +766,29 @@
         <div class="sales-summary">
             <div class="summary-card">
                 <h3>Total Sales</h3>
-                <div class="total-amount" id="total-sales">PKR 0.00</div>
+                <div class="total-amount" id="totalSales">$0.00</div>
             </div>
             <div class="summary-card">
                 <h3>Total Orders</h3>
-                <div class="total-count" id="total-orders">0</div>
+                <div class="total-count" id="totalOrders">0</div>
             </div>
         </div>
 
-        <div class="admin-table">
-            <table>
+        <div class="admin-table-container">
+            <table class="admin-table" id="ordersTable">
                 <thead>
                     <tr>
                         <th>Order ID</th>
                         <th>Customer</th>
+                        <th>Items</th>
                         <th>Total</th>
                         <th>Status</th>
                         <th>Date</th>
-                        <th>Items</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="orders-tbody">
-                    <!-- Orders will be loaded here -->
+                <tbody id="ordersTableBody">
+                    <!-- Orders will be populated here -->
                 </tbody>
             </table>
         </div>
@@ -698,654 +797,1046 @@
     <!-- Settings Tab -->
     <div id="settings" class="tab-content">
         <div class="tab-header">
-            <h2>Settings</h2>
-            <button class="save-btn" onclick="saveSettings()">Save Changes</button>
+            <h2>Store Settings</h2>
         </div>
 
         <div class="settings-content">
             <div class="settings-section">
                 <h3>Store Information</h3>
-                <form id="store-info-form">
+                <form id="storeInfoForm">
                     <div class="form-group">
-                        <label for="store_name">Store Name</label>
-                        <input type="text" id="store_name" name="store_name" required>
+                        <label for="storeName">Store Name</label>
+                        <input type="text" id="storeName" name="storeName" value="Umair Bakers & general Store">
                     </div>
                     <div class="form-group">
-                        <label for="contact_phone">Contact Phone</label>
-                        <input type="text" id="contact_phone" name="contact_phone" required>
+                        <label for="storeAddress">Address</label>
+                        <textarea id="storeAddress" name="storeAddress" rows="3">123 Main Street, City, Country</textarea>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="storePhone">Phone</label>
+                        <input type="tel" id="storePhone" name="storePhone" value="+1234567890">
                     </div>
+                    <button type="submit" class="save-btn">Save Changes</button>
                 </form>
             </div>
 
             <div class="settings-section">
-                <h3>Business Settings</h3>
-                <form id="business-settings-form">
+                <h3>Business Hours</h3>
+                <form id="businessHoursForm">
                     <div class="form-group">
-                        <label for="delivery_fee">Delivery Fee</label>
-                        <input type="number" id="delivery_fee" name="delivery_fee" step="0.01" min="0" required>
-                        <small>Delivery charge in PKR</small>
+                        <label for="openTime">Opening Time</label>
+                        <input type="time" id="openTime" name="openTime" value="09:00">
                     </div>
                     <div class="form-group">
-                        <label for="minimum_order">Minimum Order</label>
-                        <input type="number" id="minimum_order" name="minimum_order" step="0.01" min="0" required>
-                        <small>Minimum order amount in PKR</small>
+                        <label for="closeTime">Closing Time</label>
+                        <input type="time" id="closeTime" name="closeTime" value="21:00">
                     </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="openSunday" name="openSunday" checked>
+                            Open on Sundays
+                        </label>
+                    </div>
+                    <button type="submit" class="save-btn">Save Changes</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Product Modal -->
+    <!-- Add/Edit Product Modal -->
     <div id="productModal" class="modal">
-        <div class="modal-overlay" onclick="closeProductModal()"></div>
+        <div class="modal-overlay"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Add New Product</h3>
-                <button class="modal-close" onclick="closeProductModal()">&times;</button>
+                <h3 id="modalTitle">Add New Product</h3>
+                <button class="modal-close" id="closeModal">×</button>
             </div>
-            <form class="product-form" id="product-form">
+            <form class="product-form" id="productForm">
+                <!-- Image Upload Section -->
                 <div class="form-group">
-                    <label for="name">Product Name *</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="price">Price *</label>
-                        <input type="number" id="price" name="price" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="unit">Unit *</label>
-                        <input type="text" id="unit" name="unit" placeholder="e.g., per kg, per piece" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="category">Category *</label>
-                    <select id="category" name="category" required>
-                        <option value="">Select category</option>
-                        <option value="Bakery">Bakery</option>
-                        <option value="Dairy">Dairy</option>
-                        <option value="Groceries">Groceries</option>
-                        <option value="Beverages">Beverages</option>
-                        <option value="Snacks">Snacks</option>
-                        <option value="Personal Care">Personal Care</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="3" placeholder="Enter product description"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="image">Image URL</label>
-                    <input type="url" id="image" name="image" placeholder="https://example.com/image.jpg">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="barcode">Barcode</label>
-                        <div class="barcode-input-container">
-                            <input type="text" id="barcode" name="barcode" placeholder="Enter barcode or scan">
-                            <button type="button" class="scan-btn" onclick="startBarcodeScanner()">📷 Scan</button>
-                        </div>
-                        <div id="barcode-scanner" class="barcode-scanner" style="display: none;">
-                            <video id="barcode-video" class="barcode-video"></video>
-                            <div class="scanner-controls">
-                                <button type="button" class="btn-scanner" onclick="stopBarcodeScanner()">Stop Scanner</button>
-                                <button type="button" class="btn-scanner" onclick="fetchProductByBarcode()">Fetch Product</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="in_stock" name="in_stock" checked>
-                            In Stock
+                    <label for="productImage">Product Image</label>
+                    
+                    <!-- Image Input Method Selector -->
+                    <div class="image-method-selector" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <label class="method-option" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="imageMethod" value="upload" checked id="methodUpload" style="margin: 0;">
+                            <span>Upload File</span>
+                        </label>
+                        <label class="method-option" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="imageMethod" value="url" id="methodUrl" style="margin: 0;">
+                            <span>Enter URL</span>
                         </label>
                     </div>
+
+                    <!-- File Upload Section -->
+                    <div id="uploadSection">
+                        <input type="file" id="productImageFile" name="imageFile" class="file-input" accept="image/*">
+                        <div class="image-upload-container" id="imageUploadContainer">
+                            <div class="upload-icon">📷</div>
+                            <div class="upload-text">Click to upload or drag and drop</div>
+                            <div class="upload-hint">Supports JPG, PNG, GIF, WebP (Max 5MB)</div>
+                        </div>
+                    </div>
+
+                    <!-- URL Input Section -->
+                    <div id="urlSection" style="display: none;">
+                        <div class="url-input-container" style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                            <div style="flex: 1;">
+                                <input type="url" id="productImageUrl" name="imageUrl" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                            </div>
+                            <button type="button" id="loadUrlBtn" style="background: #3b82f6; color: white; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; white-space: nowrap;">Load Image</button>
+                        </div>
+                        <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Enter a direct link to an image file</div>
+                    </div>
+                    
+                    <div class="image-preview-container" id="imagePreviewContainer">
+                        <img id="imagePreview" class="image-preview" alt="Product preview">
+                        <div class="image-actions">
+                            <button type="button" class="image-action-btn btn-change" id="changeImageBtn">Change</button>
+                            <button type="button" class="image-action-btn btn-remove" id="removeImageBtn">Remove</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="productImage" name="image">
+                    <div class="error-message" id="imageError"></div>
+                </div>
+
+                <!-- Barcode Section -->
+                <div class="form-group">
+                    <label for="productBarcode">Barcode</label>
+                    <div class="barcode-input-container">
+                        <input type="text" id="productBarcode" name="barcode" placeholder="Scan or enter barcode">
+                        <button type="button" class="scan-btn" id="scanBarcodeBtn">📷 Scan</button>
+                        <button type="button" class="fetch-btn" id="fetchBarcodeBtn">🔄 Fetch Details</button>
+                    </div>
+                    <div class="error-message" id="barcodeError"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" name="name" required>
+                        <div class="error-message" id="nameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
+                        <select id="productCategory" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="bakery">Bakery</option>
+                            <option value="groceries">Groceries</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="beverages">Beverages</option>
+                            <option value="snacks">Snacks</option>
+                            <option value="frozen">Frozen</option>
+                            <option value="personal_care">Personal Care</option>
+                            <option value="household">Household</option>
+                        </select>
+                        <div class="error-message" id="categoryError"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productPrice">Price *</label>
+                        <input type="number" id="productPrice" name="price" step="0.01" min="0" required>
+                        <div class="error-message" id="priceError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productUnit">Unit *</label>
+                        <select id="productUnit" name="unit" required>
+                            <option value="">Select Unit</option>
+                            <option value="per piece">per piece</option>
+                            <option value="per kg">per kg</option>
+                            <option value="per gram">per gram</option>
+                            <option value="per liter">per liter</option>
+                            <option value="per bottle">per bottle</option>
+                            <option value="per pack">per pack</option>
+                            <option value="per box">per box</option>
+                            <option value="per loaf">per loaf</option>
+                        </select>
+                        <div class="error-message" id="unitError"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" name="description" rows="3" placeholder="Optional product description"></textarea>
+                    <div class="error-message" id="descriptionError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="productInStock" name="in_stock" checked>
+                        In Stock
+                    </label>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="cancel-btn" onclick="closeProductModal()">Cancel</button>
-                    <button type="submit" class="submit-btn">Save Product</button>
+                    <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="submit-btn" id="submitBtn">Add Product</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast -->
-    <div id="toast" class="toast"></div>
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
 
-    <!-- ZXing Barcode Scanner Library -->
-    <script src="https://unpkg.com/@zxing/library@latest/esm/index.min.js" type="module"></script>
-    
-    <script type="module">
-        import { BrowserMultiFormatReader, NotFoundException } from 'https://unpkg.com/@zxing/library@latest/esm/index.min.js';
+    <script>
+        // Global variables
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let currentEditingId = null;
+
+        // DOM elements
+        const productModal = document.getElementById('productModal');
+        const productForm = document.getElementById('productForm');
+        const productsTableBody = document.getElementById('productsTableBody');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const totalSales = document.getElementById('totalSales');
+        const totalOrders = document.getElementById('totalOrders');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const closeModal = document.getElementById('closeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const modalOverlay = document.querySelector('.modal-overlay');
         
-        // Make barcode reader available globally
-        window.barcodeReader = new BrowserMultiFormatReader();
-        window.scanningStream = null;
-        window.scanningTimeout = null;
-        // Data storage using localStorage for standalone functionality
-        let products = JSON.parse(localStorage.getItem('admin_products') || '[]');
-        let orders = JSON.parse(localStorage.getItem('admin_orders') || '[]');
-        let settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
-        let currentProduct = null;
-        let nextProductId = parseInt(localStorage.getItem('nextProductId') || '1');
-        let nextOrderId = parseInt(localStorage.getItem('nextOrderId') || '1');
+        // Image upload elements
+        const imageUploadContainer = document.getElementById('imageUploadContainer');
+        const productImageFile = document.getElementById('productImageFile');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const productImageHidden = document.getElementById('productImage');
+        const changeImageBtn = document.getElementById('changeImageBtn');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const methodUpload = document.getElementById('methodUpload');
+        const methodUrl = document.getElementById('methodUrl');
+        const uploadSection = document.getElementById('uploadSection');
+        const urlSection = document.getElementById('urlSection');
+        const productImageUrl = document.getElementById('productImageUrl');
+        const loadUrlBtn = document.getElementById('loadUrlBtn');
 
-        // Initialize with sample data if empty
-        if (products.length === 0) {
-            products = [
-                {
-                    id: 1,
-                    name: "Fresh White Bread",
-                    price: "120.00",
-                    unit: "per loaf",
-                    category: "Bakery",
-                    description: "Freshly baked white bread made daily",
-                    image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=300&h=200&fit=crop",
-                    barcode: "123456789001",
-                    in_stock: true,
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    name: "Milk 1L",
-                    price: "180.00",
-                    unit: "per bottle",
-                    category: "Dairy",
-                    description: "Fresh full cream milk",
-                    image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=200&fit=crop",
-                    barcode: "123456789002",
-                    in_stock: true,
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    name: "Basmati Rice",
-                    price: "350.00",
-                    unit: "per kg",
-                    category: "Groceries",
-                    description: "Premium quality basmati rice",
-                    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=200&fit=crop",
-                    barcode: "123456789003",
-                    in_stock: true,
-                    created_at: new Date().toISOString()
-                }
-            ];
-            nextProductId = 4;
-            localStorage.setItem('admin_products', JSON.stringify(products));
-            localStorage.setItem('nextProductId', nextProductId.toString());
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTabs();
+            renderProducts();
+            renderOrders();
+            updateOrdersSummary();
+            loadSettings();
+            initializeImageUpload();
+        });
+
+        // Tab Management
+        function initializeTabs() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const targetTab = e.target.getAttribute('data-tab');
+                    switchTab(targetTab);
+                });
+            });
+
+            // Modal event listeners
+            addProductBtn.addEventListener('click', openAddProductModal);
+            closeModal.addEventListener('click', closeProductModal);
+            cancelBtn.addEventListener('click', closeProductModal);
+            modalOverlay.addEventListener('click', closeProductModal);
+            productForm.addEventListener('submit', handleProductSubmit);
+
+            // Settings event listeners
+            document.getElementById('storeInfoForm').addEventListener('submit', handleStoreInfoSubmit);
+            document.getElementById('businessHoursForm').addEventListener('submit', handleBusinessHoursSubmit);
+
+            // Barcode event listeners
+            document.getElementById('scanBarcodeBtn').addEventListener('click', handleBarcodeScanning);
+            document.getElementById('fetchBarcodeBtn').addEventListener('click', fetchBarcodeDetails);
+            document.getElementById('productBarcode').addEventListener('input', handleBarcodeInput);
+            document.getElementById('productBarcode').addEventListener('paste', handleBarcodePaste);
         }
 
-        if (orders.length === 0) {
-            orders = [
-                {
-                    id: 1,
-                    customer_name: "Ahmed Ali",
-                    customer_phone: "+92 300 123 4567",
-                    customer_address: "123 Main Street, Lahore",
-                    order_note: "Please deliver in the evening",
-                    total_amount: "650.00",
-                    status: "confirmed",
-                    created_at: new Date().toISOString(),
-                    items: [
-                        { id: 1, product_name: "Fresh White Bread", quantity: 2, price: "120.00" },
-                        { id: 2, product_name: "Milk 1L", quantity: 1, price: "180.00" },
-                        { id: 3, product_name: "Basmati Rice", quantity: 1, price: "350.00" }
-                    ]
-                }
-            ];
-            nextOrderId = 2;
-            localStorage.setItem('admin_orders', JSON.stringify(orders));
-            localStorage.setItem('nextOrderId', nextOrderId.toString());
-        }
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
-        if (Object.keys(settings).length === 0) {
-            settings = {
-                store_name: "Umair Bakers & general Store",
-                contact_phone: "+92 333 249 1993",
-                email: "info@umairbakers.com",
-                delivery_fee: "50",
-                minimum_order: "200"
-            };
-            localStorage.setItem('admin_settings', JSON.stringify(settings));
-        }
-
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type} show`;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Tab switching
-        function showTab(tabName) {
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(tab => tab.classList.remove('active'));
-            
-            // Remove active class from all nav tabs
-            const navTabs = document.querySelectorAll('.nav-tab');
-            navTabs.forEach(tab => tab.classList.remove('active'));
-            
-            // Show selected tab content
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
             document.getElementById(tabName).classList.add('active');
-            
-            // Add active class to clicked nav tab
-            event.target.classList.add('active');
-            
-            // Load data when switching to specific tabs
-            if (tabName === 'products') {
-                renderProducts();
-            } else if (tabName === 'orders') {
-                renderOrders();
-                updateOrderSummary();
-            } else if (tabName === 'settings') {
-                renderSettings();
-            }
         }
 
-        // Render products table
-        function renderProducts() {
-            const tbody = document.getElementById('products-tbody');
-            
-            if (products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="loading">No products found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = products.map(product => `
-                <tr>
-                    <td>
-                        ${product.image ? 
-                            `<img src="${product.image}" alt="${product.name}" class="product-table-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                             <div class="product-table-img" style="display:none;">No Image</div>` :
-                            `<div class="product-table-img">No Image</div>`
-                        }
-                    </td>
-                    <td style="font-weight: 500;">${product.name}</td>
-                    <td>${product.category}</td>
-                    <td>PKR ${product.price}</td>
-                    <td>${product.unit}</td>
-                    <td>
-                        <span class="stock-badge ${product.in_stock ? 'stock-in' : 'stock-out'}">
-                            ${product.in_stock ? '✅ In Stock' : '❌ Out of Stock'}
-                        </span>
-                    </td>
-                    <td>${product.barcode || '-'}</td>
-                    <td>
-                        <button class="action-btn edit" onclick="editProduct(${product.id})">✏️</button>
-                        <button class="action-btn delete" onclick="deleteProduct(${product.id})">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
+        // Image Upload Functions
+        function initializeImageUpload() {
+            // Method switcher
+            methodUpload.addEventListener('change', handleMethodChange);
+            methodUrl.addEventListener('change', handleMethodChange);
+
+            // Click to upload
+            imageUploadContainer.addEventListener('click', () => {
+                productImageFile.click();
+            });
+
+            // File input change
+            productImageFile.addEventListener('change', handleImageSelect);
+
+            // URL input and loading
+            loadUrlBtn.addEventListener('click', handleUrlLoad);
+            productImageUrl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleUrlLoad();
+                }
+            });
+
+            // Image actions
+            changeImageBtn.addEventListener('click', () => {
+                if (methodUpload.checked) {
+                    productImageFile.click();
+                } else {
+                    // Switch to URL method for changing
+                    methodUrl.checked = true;
+                    handleMethodChange();
+                    productImageUrl.focus();
+                }
+            });
+
+            removeImageBtn.addEventListener('click', removeImage);
+
+            // Drag and drop
+            imageUploadContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageUploadContainer.classList.add('dragover');
+            });
+
+            imageUploadContainer.addEventListener('dragleave', () => {
+                imageUploadContainer.classList.remove('dragover');
+            });
+
+            imageUploadContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageUploadContainer.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleImageFile(files[0]);
+                }
+            });
         }
 
-        // Render orders table
-        function renderOrders() {
-            const tbody = document.getElementById('orders-tbody');
-            
-            if (orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="loading">No orders found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = orders.map(order => `
-                <tr>
-                    <td style="font-family: monospace;">#${order.id.toString().padStart(3, '0')}</td>
-                    <td>
-                        <div style="font-weight: 500;">${order.customer_name}</div>
-                        <div style="font-size: 0.875rem; color: #6b7280;">${order.customer_phone}</div>
-                    </td>
-                    <td style="font-weight: 500;">PKR ${order.total_amount}</td>
-                    <td>
-                        <span class="status-badge ${order.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled'}">
-                            ${order.status}
-                        </span>
-                    </td>
-                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                    <td>
-                        <div style="font-size: 0.875rem;">
-                            ${order.items?.map(item => `${item.product_name} × ${item.quantity}`).join('<br>') || 'No items'}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // Update order summary
-        function updateOrderSummary() {
-            const totalSales = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
-            const totalOrderCount = orders.length;
-            
-            document.getElementById('total-sales').textContent = `PKR ${totalSales.toFixed(2)}`;
-            document.getElementById('total-orders').textContent = totalOrderCount;
-        }
-
-        // Render settings
-        function renderSettings() {
-            document.getElementById('store_name').value = settings.store_name || '';
-            document.getElementById('contact_phone').value = settings.contact_phone || '';
-            document.getElementById('email').value = settings.email || '';
-            document.getElementById('delivery_fee').value = settings.delivery_fee || '';
-            document.getElementById('minimum_order').value = settings.minimum_order || '';
-        }
-
-        // Save settings
-        function saveSettings() {
-            settings = {
-                store_name: document.getElementById('store_name').value,
-                contact_phone: document.getElementById('contact_phone').value,
-                email: document.getElementById('email').value,
-                delivery_fee: document.getElementById('delivery_fee').value,
-                minimum_order: document.getElementById('minimum_order').value,
-            };
-            
-            localStorage.setItem('admin_settings', JSON.stringify(settings));
-            showToast('Settings saved successfully!');
-        }
-
-        // Product modal functions
-        function openProductModal(product = null) {
-            currentProduct = product;
-            const modal = document.getElementById('productModal');
-            const form = document.getElementById('product-form');
-            const title = document.getElementById('modal-title');
-            
-            if (product) {
-                title.textContent = 'Edit Product';
-                form.name.value = product.name || '';
-                form.price.value = product.price || '';
-                form.unit.value = product.unit || '';
-                form.category.value = product.category || '';
-                form.description.value = product.description || '';
-                form.image.value = product.image || '';
-                form.barcode.value = product.barcode || '';
-                form.in_stock.checked = product.in_stock ?? true;
+        function handleMethodChange() {
+            if (methodUpload.checked) {
+                uploadSection.style.display = 'block';
+                urlSection.style.display = 'none';
+                productImageUrl.value = '';
             } else {
-                title.textContent = 'Add New Product';
-                form.reset();
-                form.in_stock.checked = true;
+                uploadSection.style.display = 'none';
+                urlSection.style.display = 'block';
+                productImageFile.value = '';
             }
-            
-            modal.classList.add('open');
+        }
+
+        async function handleUrlLoad() {
+            const url = productImageUrl.value.trim();
+            if (!url) {
+                showToast('Please enter an image URL', 'error');
+                return;
+            }
+
+            // Basic URL validation
+            try {
+                new URL(url);
+            } catch {
+                showToast('Please enter a valid URL', 'error');
+                return;
+            }
+
+            const originalText = loadUrlBtn.textContent;
+            loadUrlBtn.disabled = true;
+            loadUrlBtn.textContent = 'Loading...';
+
+            try {
+                // For external URLs, we'll store the URL directly (not convert to base64)
+                // This allows for faster loading and smaller localStorage usage
+                
+                // Test if the image can be loaded
+                const testImg = new Image();
+                testImg.crossOrigin = 'anonymous';
+                
+                await new Promise((resolve, reject) => {
+                    testImg.onload = () => {
+                        // Image loaded successfully, use the URL directly
+                        showImagePreview(url);
+                        productImageHidden.value = url;
+                        showToast('Image loaded successfully!', 'success');
+                        resolve();
+                    };
+                    testImg.onerror = () => {
+                        reject(new Error('Failed to load image from URL'));
+                    };
+                    testImg.src = url;
+                });
+
+            } catch (error) {
+                console.error('URL image load failed:', error);
+                showToast('Failed to load image from URL. Please check the URL and try again.', 'error');
+            } finally {
+                loadUrlBtn.disabled = false;
+                loadUrlBtn.textContent = originalText;
+            }
+        }
+
+        function handleImageSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageFile(file);
+            }
+        }
+
+        function handleImageFile(file) {
+            // Validate file
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                showToast('Please select a valid image file (JPG, PNG, GIF, WebP)', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showToast('Image size should be less than 5MB', 'error');
+                return;
+            }
+
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                showImagePreview(base64String);
+                productImageHidden.value = base64String;
+                showToast('Image uploaded successfully!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showImagePreview(imageSrc) {
+            imagePreview.src = imageSrc;
+            imageUploadContainer.style.display = 'none';
+            imagePreviewContainer.style.display = 'block';
+        }
+
+        function removeImage() {
+            productImageHidden.value = '';
+            productImageFile.value = '';
+            productImageUrl.value = '';
+            imagePreview.src = '';
+            imageUploadContainer.style.display = 'block';
+            imagePreviewContainer.style.display = 'none';
+        }
+
+        // Modal Management
+        function openAddProductModal() {
+            currentEditingId = null;
+            modalTitle.textContent = 'Add New Product';
+            submitBtn.textContent = 'Add Product';
+            productForm.reset();
+            methodUpload.checked = true;
+            handleMethodChange();
+            removeImage();
+            clearFormErrors();
+            openProductModal();
+        }
+
+        function openEditProductModal(product) {
+            currentEditingId = product.id;
+            modalTitle.textContent = 'Edit Product';
+            submitBtn.textContent = 'Update Product';
+            clearFormErrors();
+
+            // Fill form with product data
+            document.getElementById('productName').value = product.name || '';
+            document.getElementById('productCategory').value = product.category || '';
+            document.getElementById('productPrice').value = product.price || '';
+            document.getElementById('productUnit').value = product.unit || '';
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productBarcode').value = product.barcode || '';
+            document.getElementById('productInStock').checked = product.in_stock !== false;
+
+            // Handle image - detect if it's base64 or URL
+            if (product.image) {
+                if (product.image.startsWith('data:')) {
+                    // Base64 image - use upload method
+                    methodUpload.checked = true;
+                    handleMethodChange();
+                } else {
+                    // URL image - use URL method
+                    methodUrl.checked = true;
+                    handleMethodChange();
+                    productImageUrl.value = product.image;
+                }
+                showImagePreview(product.image);
+                productImageHidden.value = product.image;
+            } else {
+                methodUpload.checked = true;
+                handleMethodChange();
+                removeImage();
+            }
+
+            openProductModal();
+        }
+
+        function openProductModal() {
+            productModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeProductModal() {
-            document.getElementById('productModal').classList.remove('open');
-            currentProduct = null;
+            productModal.classList.remove('open');
+            document.body.style.overflow = '';
+            currentEditingId = null;
+            productForm.reset();
+            methodUpload.checked = true;
+            handleMethodChange();
+            removeImage();
+            clearFormErrors();
         }
 
-        function editProduct(id) {
-            const product = products.find(p => p.id === id);
-            if (product) {
-                openProductModal(product);
+        function clearFormErrors() {
+            const errorMessages = document.querySelectorAll('.error-message');
+            const formGroups = document.querySelectorAll('.form-group');
+            
+            errorMessages.forEach(error => error.textContent = '');
+            formGroups.forEach(group => group.classList.remove('error'));
+        }
+
+        function validateProductForm(formData) {
+            const errors = {};
+            
+            if (!formData.get('name').trim()) {
+                errors.name = 'Product name is required';
             }
+            
+            if (!formData.get('category')) {
+                errors.category = 'Category is required';
+            }
+            
+            if (!formData.get('unit')) {
+                errors.unit = 'Unit is required';
+            }
+            
+            const price = parseFloat(formData.get('price'));
+            if (isNaN(price) || price < 0) {
+                errors.price = 'Valid price is required';
+            }
+
+            // Display errors
+            Object.keys(errors).forEach(field => {
+                const errorElement = document.getElementById(field + 'Error');
+                const formGroup = errorElement.closest('.form-group');
+                
+                if (errorElement && formGroup) {
+                    errorElement.textContent = errors[field];
+                    formGroup.classList.add('error');
+                }
+            });
+
+            return Object.keys(errors).length === 0;
+        }
+
+        // Product Management
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(productForm);
+            
+            if (!validateProductForm(formData)) {
+                return;
+            }
+
+            const productData = {
+                id: currentEditingId || generateId(),
+                name: formData.get('name').trim(),
+                category: formData.get('category'),
+                price: parseFloat(formData.get('price')),
+                unit: formData.get('unit'),
+                description: formData.get('description').trim(),
+                image: productImageHidden.value, // Use base64 image
+                in_stock: formData.get('in_stock') === 'on',
+                barcode: formData.get('barcode').trim(),
+                created_at: currentEditingId ? products.find(p => p.id === currentEditingId).created_at : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (currentEditingId) {
+                // Update existing product
+                const index = products.findIndex(p => p.id === currentEditingId);
+                if (index !== -1) {
+                    products[index] = productData;
+                    showToast('Product updated successfully!', 'success');
+                }
+            } else {
+                // Add new product
+                products.push(productData);
+                showToast('Product added successfully!', 'success');
+            }
+
+            saveProducts();
+            renderProducts();
+            closeProductModal();
         }
 
         function deleteProduct(id) {
             if (confirm('Are you sure you want to delete this product?')) {
                 products = products.filter(p => p.id !== id);
-                localStorage.setItem('admin_products', JSON.stringify(products));
+                saveProducts();
                 renderProducts();
-                showToast('Product deleted successfully!');
+                showToast('Product deleted successfully!', 'success');
             }
         }
 
-        // Product form submission
-        document.getElementById('product-form').addEventListener('submit', function(e) {
+        function saveProducts() {
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        function renderProducts() {
+            if (products.length === 0) {
+                productsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <h3>No products found</h3>
+                            <p>Start by adding your first product to the inventory.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            productsTableBody.innerHTML = products.map(product => `
+                <tr>
+                    <td>
+                        <div class="product-table-img">
+                            ${product.image ? 
+                                `<img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                 <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: #f3f4f6; color: #6b7280; font-size: 10px;">No Image</div>` : 
+                                'No Image'
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${product.name}</strong>
+                        ${product.description ? `<br><small style="color: #6b7280;">${product.description}</small>` : ''}
+                    </td>
+                    <td>${product.category}</td>
+                    <td>${product.price.toFixed(2)} ${product.unit || ''}</td>
+                    <td>
+                        <span class="stock-badge ${product.in_stock ? 'stock-in' : 'stock-out'}">
+                            ${product.in_stock ? 'In Stock' : 'Out of Stock'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-confirmed">
+                            ${product.barcode || 'No Barcode'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn edit" onclick="openEditProductModal(${JSON.stringify(product).replace(/"/g, '&quot;')})">
+                            Edit
+                        </button>
+                        <button class="action-btn delete" onclick="deleteProduct('${product.id}')">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Order Management
+        function renderOrders() {
+            if (orders.length === 0) {
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <h3>No orders found</h3>
+                            <p>Orders will appear here when customers make purchases.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            ordersTableBody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.customerName || 'Guest'}</td>
+                    <td>${order.items.length} ${order.items.length === 1 ? 'item' : 'items'}</td>
+                    <td>$${order.total.toFixed(2)}</td>
+                    <td>
+                        <span class="status-badge ${order.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled'}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="viewOrder('${order.id}')">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateOrdersSummary() {
+            const totalAmount = orders.reduce((sum, order) => sum + order.total, 0);
+            totalSales.textContent = `$${totalAmount.toFixed(2)}`;
+            totalOrders.textContent = orders.length.toString();
+        }
+
+        function viewOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                alert(`Order Details:\n\nID: #${order.id}\nCustomer: ${order.customerName || 'Guest'}\nItems: ${order.items.length}\nTotal: $${order.total.toFixed(2)}\nStatus: ${order.status}\nDate: ${new Date(order.createdAt).toLocaleString()}`);
+            }
+        }
+
+        // Settings Management
+        function handleStoreInfoSubmit(e) {
             e.preventDefault();
-            
             const formData = new FormData(e.target);
-            const productData = {
-                name: formData.get('name'),
-                price: formData.get('price'),
-                unit: formData.get('unit'),
-                category: formData.get('category'),
-                description: formData.get('description') || null,
-                image: formData.get('image') || null,
-                barcode: formData.get('barcode') || null,
-                in_stock: formData.has('in_stock'),
-                created_at: new Date().toISOString()
+            const storeInfo = {
+                name: formData.get('storeName') || 'Umair Bakers & general Store',
+                address: formData.get('storeAddress') || '',
+                phone: formData.get('storePhone') || ''
             };
             
-            if (currentProduct) {
-                // Update existing product
-                const index = products.findIndex(p => p.id === currentProduct.id);
-                if (index !== -1) {
-                    products[index] = { ...currentProduct, ...productData };
-                    showToast('Product updated successfully!');
-                }
-            } else {
-                // Create new product
-                productData.id = nextProductId++;
-                products.push(productData);
-                localStorage.setItem('nextProductId', nextProductId.toString());
-                showToast('Product created successfully!');
-            }
-            
-            localStorage.setItem('admin_products', JSON.stringify(products));
-            closeProductModal();
-            renderProducts();
-        });
+            localStorage.setItem('storeInfo', JSON.stringify(storeInfo));
+            showToast('Store information updated!', 'success');
+        }
 
-        // Barcode Scanner Functions
-        async function startBarcodeScanner() {
-            const scannerDiv = document.getElementById('barcode-scanner');
-            const video = document.getElementById('barcode-video');
+        function handleBusinessHoursSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const businessHours = {
+                openTime: formData.get('openTime') || '09:00',
+                closeTime: formData.get('closeTime') || '21:00',
+                openSunday: formData.get('openSunday') === 'on'
+            };
             
-            try {
-                scannerDiv.style.display = 'block';
-                
-                // Request camera permission and start scanning
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: 'environment', // Use back camera on mobile
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
+            localStorage.setItem('businessHours', JSON.stringify(businessHours));
+            showToast('Business hours updated!', 'success');
+        }
+
+        function loadSettings() {
+            // Load store info
+            const storeInfo = JSON.parse(localStorage.getItem('storeInfo')) || {};
+            if (storeInfo.name) document.getElementById('storeName').value = storeInfo.name;
+            if (storeInfo.address) document.getElementById('storeAddress').value = storeInfo.address;
+            if (storeInfo.phone) document.getElementById('storePhone').value = storeInfo.phone;
+
+            // Load business hours
+            const businessHours = JSON.parse(localStorage.getItem('businessHours')) || {};
+            if (businessHours.openTime) document.getElementById('openTime').value = businessHours.openTime;
+            if (businessHours.closeTime) document.getElementById('closeTime').value = businessHours.closeTime;
+            if (businessHours.openSunday !== undefined) document.getElementById('openSunday').checked = businessHours.openSunday;
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
                     }
-                });
+                }, 300);
+            }, 3000);
+        }
+
+        // Utility Functions
+        function generateId() {
+            return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Barcode Functions
+        function handleBarcodeScanning() {
+            // Check if the browser supports the BarcodeDetector API
+            if ('BarcodeDetector' in window) {
+                startBarcodeScanning();
+            } else {
+                // Fallback to manual barcode entry
+                showToast('Camera scanning not supported. Please enter barcode manually.', 'error');
+                document.getElementById('productBarcode').focus();
+            }
+        }
+
+        async function startBarcodeScanning() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
                 
                 video.srcObject = stream;
                 video.play();
-                window.scanningStream = stream;
                 
-                // Start barcode detection
-                if (window.barcodeReader) {
-                    window.barcodeReader.decodeFromVideoDevice(null, video, (result, err) => {
-                        if (result) {
-                            const barcode = result.getText();
-                            document.getElementById('barcode').value = barcode;
-                            showToast(`Barcode scanned: ${barcode}`);
-                            stopBarcodeScanner();
-                            
-                            // Auto-fetch product details
-                            setTimeout(() => {
-                                fetchProductByBarcode();
-                            }, 500);
-                        }
-                        if (err && !(err instanceof NotFoundException)) {
-                            console.error('Barcode scanning error:', err);
-                        }
-                    });
-                }
+                const barcodeDetector = new BarcodeDetector();
                 
+                const scanningModal = createScanningModal(video, () => {
+                    stream.getTracks().forEach(track => track.stop());
+                });
+                
+                const detectBarcodes = async () => {
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        try {
+                            const barcodes = await barcodeDetector.detect(canvas);
+                            if (barcodes.length > 0) {
+                                const barcode = barcodes[0].rawValue;
+                                document.getElementById('productBarcode').value = barcode;
+                                stream.getTracks().forEach(track => track.stop());
+                                scanningModal.remove();
+                                showToast('Barcode scanned successfully!', 'success');
+                                // Auto-fetch barcode details
+                                fetchBarcodeDetails();
+                                return;
+                            }
+                        } catch (error) {
+                            console.warn('Barcode detection failed:', error);
+                        }
+                    }
+                    requestAnimationFrame(detectBarcodes);
+                };
+                
+                detectBarcodes();
             } catch (error) {
-                console.error('Camera access error:', error);
-                showToast('Camera access denied or not available. Please enter barcode manually.', 'error');
-                scannerDiv.style.display = 'none';
+                console.error('Camera access failed:', error);
+                showToast('Camera access denied. Please enter barcode manually.', 'error');
+                document.getElementById('productBarcode').focus();
             }
         }
-
-        function stopBarcodeScanner() {
-            const scannerDiv = document.getElementById('barcode-scanner');
-            const video = document.getElementById('barcode-video');
+        
+        function createScanningModal(video, onClose) {
+            const modal = document.createElement('div');
+            modal.className = 'modal open';
+            modal.innerHTML = `
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Scan Barcode</h3>
+                        <button class="modal-close" onclick="this.closest('.modal').remove(); onClose();">×</button>
+                    </div>
+                    <div style="padding: 1.5rem; text-align: center;">
+                        <div style="margin-bottom: 1rem;">Point your camera at a barcode</div>
+                        <div style="position: relative; display: inline-block;">
+                            ${video.outerHTML}
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 100px; border: 2px solid #0f766e; border-radius: 8px; pointer-events: none;"></div>
+                        </div>
+                        <div style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">Scanning...</div>
+                    </div>
+                </div>
+            `;
             
-            // Stop camera stream
-            if (window.scanningStream) {
-                window.scanningStream.getTracks().forEach(track => track.stop());
-                window.scanningStream = null;
-            }
+            // Replace the video element with the actual one
+            const videoContainer = modal.querySelector('div[style*="position: relative"]');
+            videoContainer.insertBefore(video, videoContainer.firstChild);
+            videoContainer.removeChild(videoContainer.querySelector('video:last-child'));
             
-            // Stop barcode reader
-            if (window.barcodeReader) {
-                window.barcodeReader.reset();
-            }
+            video.style.width = '300px';
+            video.style.height = '200px';
+            video.style.objectFit = 'cover';
+            video.style.borderRadius = '8px';
             
-            video.srcObject = null;
-            scannerDiv.style.display = 'none';
+            document.body.appendChild(modal);
+            return modal;
         }
 
-        async function fetchProductByBarcode() {
-            const barcodeInput = document.getElementById('barcode');
+        async function fetchBarcodeDetails() {
+            const barcodeInput = document.getElementById('productBarcode');
             const barcode = barcodeInput.value.trim();
             
             if (!barcode) {
-                showToast('Please enter or scan a barcode first', 'error');
+                showToast('Please enter a barcode first', 'error');
                 return;
             }
             
-            // First, try to find product in local storage
-            const existingProduct = products.find(p => p.barcode === barcode);
+            const fetchBtn = document.getElementById('fetchBarcodeBtn');
+            const originalText = fetchBtn.innerHTML;
+            fetchBtn.innerHTML = '<span class="loading-spinner"></span> Fetching...';
+            fetchBtn.disabled = true;
             
-            if (existingProduct) {
-                // Populate form with existing product data
-                document.getElementById('name').value = existingProduct.name;
-                document.getElementById('price').value = existingProduct.price;
-                document.getElementById('unit').value = existingProduct.unit;
-                document.getElementById('category').value = existingProduct.category;
-                document.getElementById('description').value = existingProduct.description || '';
-                document.getElementById('image').value = existingProduct.image || '';
-                document.getElementById('in_stock').checked = existingProduct.in_stock;
-                
-                showToast(`Product found: ${existingProduct.name}`);
-                return;
-            }
-            
-            // If not found locally, try to fetch from backend API
             try {
-                const response = await fetch(`/api/products/barcode/${encodeURIComponent(barcode)}`);
-                if (response.ok) {
-                    const product = await response.json();
-                    
-                    // Populate form with product data from backend
-                    document.getElementById('name').value = product.name || '';
-                    document.getElementById('price').value = product.price || '';
-                    document.getElementById('unit').value = product.unit || '';
-                    document.getElementById('category').value = product.category || '';
-                    document.getElementById('description').value = product.description || '';
-                    document.getElementById('image').value = product.image || '';
-                    document.getElementById('in_stock').checked = product.in_stock ?? true;
-                    
-                    showToast(`Product loaded: ${product.name}`);
-                } else if (response.status === 404) {
-                    showToast('Product not found. Please enter product details manually.', 'error');
-                } else {
-                    throw new Error('Failed to fetch product');
-                }
-            } catch (error) {
-                console.error('Error fetching product by barcode:', error);
+                // Try multiple barcode APIs
+                let productData = null;
                 
-                // Try to fetch from external barcode API as fallback
+                // Try Open Food Facts API first
                 try {
-                    const externalResponse = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-                    const externalData = await externalResponse.json();
+                    const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+                    const data = await response.json();
                     
-                    if (externalData.status === 1 && externalData.product) {
-                        const product = externalData.product;
-                        
-                        // Map Open Food Facts data to our form
-                        document.getElementById('name').value = product.product_name || '';
-                        document.getElementById('description').value = product.generic_name || product.product_name || '';
-                        document.getElementById('image').value = product.image_url || '';
-                        
-                        // Try to determine category
-                        if (product.categories) {
-                            const categories = product.categories.toLowerCase();
-                            if (categories.includes('bread') || categories.includes('bakery')) {
-                                document.getElementById('category').value = 'Bakery';
-                            } else if (categories.includes('dairy') || categories.includes('milk')) {
-                                document.getElementById('category').value = 'Dairy';
-                            } else if (categories.includes('beverage') || categories.includes('drink')) {
-                                document.getElementById('category').value = 'Beverages';
-                            } else if (categories.includes('snack')) {
-                                document.getElementById('category').value = 'Snacks';
-                            } else {
-                                document.getElementById('category').value = 'Groceries';
-                            }
-                        }
-                        
-                        showToast('Product info loaded from database. Please verify and set price.', 'success');
-                    } else {
-                        showToast('Product not found in database. Please enter details manually.', 'error');
+                    if (data.status === 1 && data.product) {
+                        productData = {
+                            name: data.product.product_name || data.product.product_name_en,
+                            description: data.product.ingredients_text || data.product.ingredients_text_en,
+                            image: data.product.image_url,
+                            category: data.product.categories ? data.product.categories.split(',')[0].trim() : null
+                        };
                     }
-                } catch (externalError) {
-                    console.error('External API error:', externalError);
-                    showToast('Product not found. Please enter product details manually.', 'error');
+                } catch (error) {
+                    console.warn('OpenFoodFacts API failed:', error);
                 }
+                
+                // Try UPC Database API as fallback
+                if (!productData) {
+                    try {
+                        const response = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+                        const data = await response.json();
+                        
+                        if (data.code === 'OK' && data.items && data.items.length > 0) {
+                            const item = data.items[0];
+                            productData = {
+                                name: item.title,
+                                description: item.description,
+                                image: item.images && item.images.length > 0 ? item.images[0] : null,
+                                category: item.category
+                            };
+                        }
+                    } catch (error) {
+                        console.warn('UPCItemDB API failed:', error);
+                    }
+                }
+                
+                if (productData) {
+                    // Auto-fill form fields
+                    if (productData.name && !document.getElementById('productName').value) {
+                        document.getElementById('productName').value = productData.name;
+                    }
+                    
+                    if (productData.description && !document.getElementById('productDescription').value) {
+                        document.getElementById('productDescription').value = productData.description.substring(0, 200);
+                    }
+                    
+                    if (productData.image && !productImageHidden.value) {
+                        // Convert external image to base64 for permanent storage
+                        try {
+                            const response = await fetch(productData.image);
+                            const blob = await response.blob();
+                            const reader = new FileReader();
+                            reader.onload = function() {
+                                showImagePreview(reader.result);
+                                productImageHidden.value = reader.result;
+                            };
+                            reader.readAsDataURL(blob);
+                        } catch (error) {
+                            console.warn('Failed to convert external image:', error);
+                        }
+                    }
+                    
+                    if (productData.category) {
+                        const categorySelect = document.getElementById('productCategory');
+                        const categoryValue = productData.category.toLowerCase();
+                        const option = Array.from(categorySelect.options).find(opt => 
+                            opt.value.toLowerCase().includes(categoryValue) || 
+                            categoryValue.includes(opt.value.toLowerCase())
+                        );
+                        if (option) {
+                            categorySelect.value = option.value;
+                        }
+                    }
+                    
+                    showToast('Product details fetched successfully!', 'success');
+                } else {
+                    showToast('No product details found for this barcode', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Barcode fetch failed:', error);
+                showToast('Failed to fetch barcode details. Please fill manually.', 'error');
+            } finally {
+                fetchBtn.innerHTML = originalText;
+                fetchBtn.disabled = false;
             }
         }
-
-        // Handle barcode input change
-        document.addEventListener('DOMContentLoaded', function() {
-            const barcodeInput = document.getElementById('barcode');
-            if (barcodeInput) {
-                // Auto-fetch when barcode is pasted or typed (after a delay)
-                let barcodeTimeout;
-                barcodeInput.addEventListener('input', function() {
-                    clearTimeout(barcodeTimeout);
-                    const barcode = this.value.trim();
-                    
-                    if (barcode.length >= 8) { // Most barcodes are 8+ digits
-                        barcodeTimeout = setTimeout(() => {
-                            fetchProductByBarcode();
-                        }, 1000); // Wait 1 second after user stops typing
+        
+        function handleBarcodeInput(e) {
+            const barcode = e.target.value.trim();
+            if (barcode && barcode.length >= 8) {
+                // Auto-fetch when a complete barcode is entered
+                clearTimeout(e.target.autoFetchTimeout);
+                e.target.autoFetchTimeout = setTimeout(() => {
+                    if (barcode === e.target.value.trim()) {
+                        fetchBarcodeDetails();
                     }
-                });
+                }, 1000);
             }
-        });
+        }
+        
+        function handleBarcodePaste(e) {
+            // Auto-fetch when barcode is pasted
+            setTimeout(() => {
+                const barcode = e.target.value.trim();
+                if (barcode && barcode.length >= 8) {
+                    fetchBarcodeDetails();
+                }
+            }, 100);
+        }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            renderProducts();
-        });
-
-        // API compatibility functions (for potential future backend integration)
-        window.syncWithBackend = function() {
-            // This function can be used to sync local data with backend when available
-            console.log('Syncing with backend...');
-        };
-
-        // Export data function
-        window.exportData = function() {
-            const data = {
-                products,
-                orders,
-                settings,
-                timestamp: new Date().toISOString()
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `umair-bakers-data-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            showToast('Data exported successfully!');
+        // Export function for debugging (accessible from console)
+        window.adminDebug = {
+            products,
+            orders,
+            clearData: () => {
+                localStorage.removeItem('products');
+                localStorage.removeItem('orders');
+                localStorage.removeItem('storeInfo');
+                localStorage.removeItem('businessHours');
+                location.reload();
+            },
+            addSampleData: () => {
+                const sampleProducts = [
+                    {
+                        id: generateId(),
+                        name: 'Fresh Bread',
+                        category: 'bakery',
+                        price: 150.00,
+                        unit: 'per loaf',
+                        description: 'Freshly baked bread made daily',
+                        image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNmI3MjgwIiBmb250LXNpemU9IjE0IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiPkJyZWFkIEltYWdlPC90ZXh0Pgo8L3N2Zz4=',
+                        in_stock: true,
+                        barcode: '1234567890123',
+                        created_at: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: generateId(),
+                        name: 'Fresh Milk',
+                        category: 'dairy',
+                        price: 80.00,
+                        unit: 'per liter',
+                        description: 'Fresh whole milk',
+                        image: '',
+                        in_stock: true,
+                        barcode: '9876543210987',
+                        created_at: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+                
+                products.push(...sampleProducts);
+                saveProducts();
+                renderProducts();
+                showToast('Sample data added!', 'success');
+            }
         };
     </script>
 </body>
