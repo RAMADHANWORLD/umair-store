@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         * {
             margin: 0;
@@ -241,6 +244,11 @@
         .status-confirmed {
             background: #d1fae5;
             color: #065f46;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
         }
 
         .status-cancelled {
@@ -766,7 +774,7 @@
         <div class="sales-summary">
             <div class="summary-card">
                 <h3>Total Sales</h3>
-                <div class="total-amount" id="totalSales">$0.00</div>
+                <div class="total-amount" id="totalSales">PKR 0.00</div>
             </div>
             <div class="summary-card">
                 <h3>Total Orders</h3>
@@ -944,14 +952,14 @@
                         <label for="productUnit">Unit *</label>
                         <select id="productUnit" name="unit" required>
                             <option value="">Select Unit</option>
-                            <option value="per piece">per piece</option>
-                            <option value="per kg">per kg</option>
-                            <option value="per gram">per gram</option>
-                            <option value="per liter">per liter</option>
-                            <option value="per bottle">per bottle</option>
-                            <option value="per pack">per pack</option>
-                            <option value="per box">per box</option>
-                            <option value="per loaf">per loaf</option>
+                            <option value="piece">per piece</option>
+                            <option value="kg">per kg</option>
+                            <option value="gram">per gram</option>
+                            <option value="liter">per liter</option>
+                            <option value="bottle">per bottle</option>
+                            <option value="pack">per pack</option>
+                            <option value="box">per box</option>
+                            <option value="loaf">per loaf</option>
                         </select>
                         <div class="error-message" id="unitError"></div>
                     </div>
@@ -982,9 +990,14 @@
     <div id="toastContainer"></div>
 
     <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://lhowukbbhnpuyciayxpe.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxob3d1a2JiaG5wdXljaWF5eHBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTA2ODMsImV4cCI6MjA3MTk4NjY4M30.JvfLmKhoboxvinflw22AlZ0LxvPHcUeaMdv8ptciBTI';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
         // Global variables
-        let products = JSON.parse(localStorage.getItem('products')) || [];
-        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let products = [];
+        let orders = [];
         let currentEditingId = null;
 
         // DOM elements
@@ -1019,12 +1032,156 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             initializeTabs();
-            renderProducts();
-            renderOrders();
-            updateOrdersSummary();
+            loadProducts();
+            loadOrders();
             loadSettings();
             initializeImageUpload();
         });
+
+        // Supabase Database Functions
+        async function loadProducts() {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                products = data || [];
+                renderProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showToast('Failed to load products', 'error');
+            }
+        }
+
+        async function saveProduct(productData) {
+            try {
+                if (currentEditingId) {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .update(productData)
+                        .eq('id', currentEditingId)
+                        .select();
+
+                    if (error) throw error;
+                    showToast('Product updated successfully!', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .insert([productData])
+                        .select();
+
+                    if (error) throw error;
+                    showToast('Product added successfully!', 'success');
+                }
+                await loadProducts();
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showToast('Failed to save product', 'error');
+            }
+        }
+
+        async function deleteProductById(id) {
+            try {
+                const { error } = await supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                showToast('Product deleted successfully!', 'success');
+                await loadProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast('Failed to delete product', 'error');
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const { data, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                orders = data || [];
+                renderOrders();
+                updateOrdersSummary();
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showToast('Failed to load orders', 'error');
+            }
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            try {
+                const { data, error } = await supabase
+                    .from('orders')
+                    .update({ status })
+                    .eq('id', orderId)
+                    .select();
+
+                if (error) throw error;
+                showToast('Order status updated!', 'success');
+                await loadOrders();
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showToast('Failed to update order status', 'error');
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const { data, error } = await supabase
+                    .from('settings')
+                    .select('*')
+                    .limit(1)
+                    .single();
+
+                if (data && !error) {
+                    if (data.store_name) document.getElementById('storeName').value = data.store_name;
+                    if (data.store_address) document.getElementById('storeAddress').value = data.store_address;
+                    if (data.store_phone) document.getElementById('storePhone').value = data.store_phone;
+                    if (data.open_time) document.getElementById('openTime').value = data.open_time;
+                    if (data.close_time) document.getElementById('closeTime').value = data.close_time;
+                    if (data.open_sunday !== undefined) document.getElementById('openSunday').checked = data.open_sunday;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function saveSettings(settingsData) {
+            try {
+                const { data: existing, error: selectError } = await supabase
+                    .from('settings')
+                    .select('id')
+                    .limit(1)
+                    .single();
+
+                if (existing) {
+                    const { error } = await supabase
+                        .from('settings')
+                        .update(settingsData)
+                        .eq('id', existing.id);
+
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabase
+                        .from('settings')
+                        .insert([settingsData]);
+
+                    if (error) throw error;
+                }
+                
+                showToast('Settings updated successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('Failed to save settings', 'error');
+            }
+        }
 
         // Tab Management
         function initializeTabs() {
@@ -1095,7 +1252,6 @@
                 if (methodUpload.checked) {
                     productImageFile.click();
                 } else {
-                    // Switch to URL method for changing
                     methodUrl.checked = true;
                     handleMethodChange();
                     productImageUrl.focus();
@@ -1144,7 +1300,6 @@
                 return;
             }
 
-            // Basic URL validation
             try {
                 new URL(url);
             } catch {
@@ -1157,16 +1312,11 @@
             loadUrlBtn.textContent = 'Loading...';
 
             try {
-                // For external URLs, we'll store the URL directly (not convert to base64)
-                // This allows for faster loading and smaller localStorage usage
-                
-                // Test if the image can be loaded
                 const testImg = new Image();
                 testImg.crossOrigin = 'anonymous';
                 
                 await new Promise((resolve, reject) => {
                     testImg.onload = () => {
-                        // Image loaded successfully, use the URL directly
                         showImagePreview(url);
                         productImageHidden.value = url;
                         showToast('Image loaded successfully!', 'success');
@@ -1195,19 +1345,17 @@
         }
 
         function handleImageFile(file) {
-            // Validate file
             const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!validTypes.includes(file.type)) {
                 showToast('Please select a valid image file (JPG, PNG, GIF, WebP)', 'error');
                 return;
             }
 
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            if (file.size > 5 * 1024 * 1024) {
                 showToast('Image size should be less than 5MB', 'error');
                 return;
             }
 
-            // Convert to base64
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64String = e.target.result;
@@ -1252,7 +1400,6 @@
             submitBtn.textContent = 'Update Product';
             clearFormErrors();
 
-            // Fill form with product data
             document.getElementById('productName').value = product.name || '';
             document.getElementById('productCategory').value = product.category || '';
             document.getElementById('productPrice').value = product.price || '';
@@ -1261,14 +1408,11 @@
             document.getElementById('productBarcode').value = product.barcode || '';
             document.getElementById('productInStock').checked = product.in_stock !== false;
 
-            // Handle image - detect if it's base64 or URL
             if (product.image) {
                 if (product.image.startsWith('data:')) {
-                    // Base64 image - use upload method
                     methodUpload.checked = true;
                     handleMethodChange();
                 } else {
-                    // URL image - use URL method
                     methodUrl.checked = true;
                     handleMethodChange();
                     productImageUrl.value = product.image;
@@ -1328,7 +1472,6 @@
                 errors.price = 'Valid price is required';
             }
 
-            // Display errors
             Object.keys(errors).forEach(field => {
                 const errorElement = document.getElementById(field + 'Error');
                 const formGroup = errorElement.closest('.form-group');
@@ -1343,7 +1486,7 @@
         }
 
         // Product Management
-        function handleProductSubmit(e) {
+        async function handleProductSubmit(e) {
             e.preventDefault();
             
             const formData = new FormData(productForm);
@@ -1353,48 +1496,24 @@
             }
 
             const productData = {
-                id: currentEditingId || generateId(),
                 name: formData.get('name').trim(),
                 category: formData.get('category'),
                 price: parseFloat(formData.get('price')),
                 unit: formData.get('unit'),
                 description: formData.get('description').trim(),
-                image: productImageHidden.value, // Use base64 image
+                image: productImageHidden.value,
                 in_stock: formData.get('in_stock') === 'on',
-                barcode: formData.get('barcode').trim(),
-                created_at: currentEditingId ? products.find(p => p.id === currentEditingId).created_at : new Date().toISOString(),
-                updatedAt: new Date().toISOString()
+                barcode: formData.get('barcode').trim()
             };
 
-            if (currentEditingId) {
-                // Update existing product
-                const index = products.findIndex(p => p.id === currentEditingId);
-                if (index !== -1) {
-                    products[index] = productData;
-                    showToast('Product updated successfully!', 'success');
-                }
-            } else {
-                // Add new product
-                products.push(productData);
-                showToast('Product added successfully!', 'success');
-            }
-
-            saveProducts();
-            renderProducts();
+            await saveProduct(productData);
             closeProductModal();
         }
 
         function deleteProduct(id) {
             if (confirm('Are you sure you want to delete this product?')) {
-                products = products.filter(p => p.id !== id);
-                saveProducts();
-                renderProducts();
-                showToast('Product deleted successfully!', 'success');
+                deleteProductById(id);
             }
-        }
-
-        function saveProducts() {
-            localStorage.setItem('products', JSON.stringify(products));
         }
 
         function renderProducts() {
@@ -1426,7 +1545,7 @@
                         ${product.description ? `<br><small style="color: #6b7280;">${product.description}</small>` : ''}
                     </td>
                     <td>${product.category}</td>
-                    <td>${product.price.toFixed(2)} ${product.unit || ''}</td>
+                    <td>PKR ${product.price.toFixed(2)} ${product.unit || ''}</td>
                     <td>
                         <span class="stock-badge ${product.in_stock ? 'stock-in' : 'stock-out'}">
                             ${product.in_stock ? 'In Stock' : 'Out of Stock'}
@@ -1465,16 +1584,18 @@
 
             ordersTableBody.innerHTML = orders.map(order => `
                 <tr>
-                    <td>#${order.id}</td>
-                    <td>${order.customerName || 'Guest'}</td>
-                    <td>${order.items.length} ${order.items.length === 1 ? 'item' : 'items'}</td>
-                    <td>$${order.total.toFixed(2)}</td>
+                    <td>#${order.id.substring(0, 8)}</td>
+                    <td>${order.customer_name || 'Guest'}</td>
+                    <td>${Array.isArray(order.items) ? order.items.length : 0} items</td>
+                    <td>PKR ${parseFloat(order.total).toFixed(2)}</td>
                     <td>
-                        <span class="status-badge ${order.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled'}">
-                            ${order.status}
-                        </span>
+                        <select class="status-badge status-${order.status}" value="${order.status}" onchange="updateOrderStatus('${order.id}', this.value)">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
                     </td>
-                    <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
                     <td>
                         <button class="action-btn edit" onclick="viewOrder('${order.id}')">
                             View
@@ -1485,57 +1606,45 @@
         }
 
         function updateOrdersSummary() {
-            const totalAmount = orders.reduce((sum, order) => sum + order.total, 0);
-            totalSales.textContent = `$${totalAmount.toFixed(2)}`;
+            const totalAmount = orders
+                .filter(order => order.status === 'confirmed')
+                .reduce((sum, order) => sum + parseFloat(order.total), 0);
+            totalSales.textContent = `PKR ${totalAmount.toFixed(2)}`;
             totalOrders.textContent = orders.length.toString();
         }
 
         function viewOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (order) {
-                alert(`Order Details:\n\nID: #${order.id}\nCustomer: ${order.customerName || 'Guest'}\nItems: ${order.items.length}\nTotal: $${order.total.toFixed(2)}\nStatus: ${order.status}\nDate: ${new Date(order.createdAt).toLocaleString()}`);
+                alert(`Order Details:\n\nID: #${order.id.substring(0, 8)}\nCustomer: ${order.customer_name || 'Guest'}\nItems: ${Array.isArray(order.items) ? order.items.length : 0}\nTotal: PKR ${parseFloat(order.total).toFixed(2)}\nStatus: ${order.status}\nDate: ${new Date(order.created_at).toLocaleString()}`);
             }
         }
 
         // Settings Management
-        function handleStoreInfoSubmit(e) {
+        async function handleStoreInfoSubmit(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
             const storeInfo = {
-                name: formData.get('storeName') || 'Umair Bakers & general Store',
-                address: formData.get('storeAddress') || '',
-                phone: formData.get('storePhone') || ''
+                setting_type: 'store_info',
+                store_name: formData.get('storeName') || 'Umair Bakers & general Store',
+                store_address: formData.get('storeAddress') || '',
+                store_phone: formData.get('storePhone') || ''
             };
             
-            localStorage.setItem('storeInfo', JSON.stringify(storeInfo));
-            showToast('Store information updated!', 'success');
+            await saveSettings(storeInfo);
         }
 
-        function handleBusinessHoursSubmit(e) {
+        async function handleBusinessHoursSubmit(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
             const businessHours = {
-                openTime: formData.get('openTime') || '09:00',
-                closeTime: formData.get('closeTime') || '21:00',
-                openSunday: formData.get('openSunday') === 'on'
+                setting_type: 'business_hours',
+                open_time: formData.get('openTime') || '09:00',
+                close_time: formData.get('closeTime') || '21:00',
+                open_sunday: formData.get('openSunday') === 'on'
             };
             
-            localStorage.setItem('businessHours', JSON.stringify(businessHours));
-            showToast('Business hours updated!', 'success');
-        }
-
-        function loadSettings() {
-            // Load store info
-            const storeInfo = JSON.parse(localStorage.getItem('storeInfo')) || {};
-            if (storeInfo.name) document.getElementById('storeName').value = storeInfo.name;
-            if (storeInfo.address) document.getElementById('storeAddress').value = storeInfo.address;
-            if (storeInfo.phone) document.getElementById('storePhone').value = storeInfo.phone;
-
-            // Load business hours
-            const businessHours = JSON.parse(localStorage.getItem('businessHours')) || {};
-            if (businessHours.openTime) document.getElementById('openTime').value = businessHours.openTime;
-            if (businessHours.closeTime) document.getElementById('closeTime').value = businessHours.closeTime;
-            if (businessHours.openSunday !== undefined) document.getElementById('openSunday').checked = businessHours.openSunday;
+            await saveSettings(businessHours);
         }
 
         // Toast Notifications
@@ -1546,10 +1655,8 @@
             
             document.getElementById('toastContainer').appendChild(toast);
             
-            // Trigger animation
             setTimeout(() => toast.classList.add('show'), 100);
             
-            // Remove toast after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => {
@@ -1560,18 +1667,11 @@
             }, 3000);
         }
 
-        // Utility Functions
-        function generateId() {
-            return Date.now().toString() + Math.random().toString(36).substr(2, 9);
-        }
-
         // Barcode Functions
         function handleBarcodeScanning() {
-            // Check if the browser supports the BarcodeDetector API
             if ('BarcodeDetector' in window) {
                 startBarcodeScanning();
             } else {
-                // Fallback to manual barcode entry
                 showToast('Camera scanning not supported. Please enter barcode manually.', 'error');
                 document.getElementById('productBarcode').focus();
             }
@@ -1607,7 +1707,6 @@
                                 stream.getTracks().forEach(track => track.stop());
                                 scanningModal.remove();
                                 showToast('Barcode scanned successfully!', 'success');
-                                // Auto-fetch barcode details
                                 fetchBarcodeDetails();
                                 return;
                             }
@@ -1634,12 +1733,11 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Scan Barcode</h3>
-                        <button class="modal-close" onclick="this.closest('.modal').remove(); onClose();">×</button>
+                        <button class="modal-close" onclick="this.closest('.modal').remove(); (${onClose.toString()})();">×</button>
                     </div>
                     <div style="padding: 1.5rem; text-align: center;">
                         <div style="margin-bottom: 1rem;">Point your camera at a barcode</div>
                         <div style="position: relative; display: inline-block;">
-                            ${video.outerHTML}
                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 100px; border: 2px solid #0f766e; border-radius: 8px; pointer-events: none;"></div>
                         </div>
                         <div style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">Scanning...</div>
@@ -1647,10 +1745,8 @@
                 </div>
             `;
             
-            // Replace the video element with the actual one
             const videoContainer = modal.querySelector('div[style*="position: relative"]');
             videoContainer.insertBefore(video, videoContainer.firstChild);
-            videoContainer.removeChild(videoContainer.querySelector('video:last-child'));
             
             video.style.width = '300px';
             video.style.height = '200px';
@@ -1676,10 +1772,8 @@
             fetchBtn.disabled = true;
             
             try {
-                // Try multiple barcode APIs
                 let productData = null;
                 
-                // Try Open Food Facts API first
                 try {
                     const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
                     const data = await response.json();
@@ -1696,7 +1790,6 @@
                     console.warn('OpenFoodFacts API failed:', error);
                 }
                 
-                // Try UPC Database API as fallback
                 if (!productData) {
                     try {
                         const response = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
@@ -1717,7 +1810,6 @@
                 }
                 
                 if (productData) {
-                    // Auto-fill form fields
                     if (productData.name && !document.getElementById('productName').value) {
                         document.getElementById('productName').value = productData.name;
                     }
@@ -1727,7 +1819,6 @@
                     }
                     
                     if (productData.image && !productImageHidden.value) {
-                        // Convert external image to base64 for permanent storage
                         try {
                             const response = await fetch(productData.image);
                             const blob = await response.blob();
@@ -1771,7 +1862,6 @@
         function handleBarcodeInput(e) {
             const barcode = e.target.value.trim();
             if (barcode && barcode.length >= 8) {
-                // Auto-fetch when a complete barcode is entered
                 clearTimeout(e.target.autoFetchTimeout);
                 e.target.autoFetchTimeout = setTimeout(() => {
                     if (barcode === e.target.value.trim()) {
@@ -1782,7 +1872,6 @@
         }
         
         function handleBarcodePaste(e) {
-            // Auto-fetch when barcode is pasted
             setTimeout(() => {
                 const barcode = e.target.value.trim();
                 if (barcode && barcode.length >= 8) {
@@ -1791,53 +1880,11 @@
             }, 100);
         }
 
-        // Export function for debugging (accessible from console)
-        window.adminDebug = {
-            products,
-            orders,
-            clearData: () => {
-                localStorage.removeItem('products');
-                localStorage.removeItem('orders');
-                localStorage.removeItem('storeInfo');
-                localStorage.removeItem('businessHours');
-                location.reload();
-            },
-            addSampleData: () => {
-                const sampleProducts = [
-                    {
-                        id: generateId(),
-                        name: 'Fresh Bread',
-                        category: 'bakery',
-                        price: 150.00,
-                        unit: 'per loaf',
-                        description: 'Freshly baked bread made daily',
-                        image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNmI3MjgwIiBmb250LXNpemU9IjE0IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiPkJyZWFkIEltYWdlPC90ZXh0Pgo8L3N2Zz4=',
-                        in_stock: true,
-                        barcode: '1234567890123',
-                        created_at: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    },
-                    {
-                        id: generateId(),
-                        name: 'Fresh Milk',
-                        category: 'dairy',
-                        price: 80.00,
-                        unit: 'per liter',
-                        description: 'Fresh whole milk',
-                        image: '',
-                        in_stock: true,
-                        barcode: '9876543210987',
-                        created_at: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    }
-                ];
-                
-                products.push(...sampleProducts);
-                saveProducts();
-                renderProducts();
-                showToast('Sample data added!', 'success');
-            }
-        };
+        // Make functions globally accessible
+        window.openEditProductModal = openEditProductModal;
+        window.deleteProduct = deleteProduct;
+        window.viewOrder = viewOrder;
+        window.updateOrderStatus = updateOrderStatus;
     </script>
 </body>
 </html>
